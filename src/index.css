@@ -38,8 +38,6 @@
     --radius: 0.5rem;
 
     /* Professional colors */
-    --orange: 25 95% 53%;
-    --orange-light: 25 95% 95%;
     --gray-50: 0 0% 98%;
     --gray-100: 0 0% 96%;
     --gray-200: 0 0% 89%;
@@ -93,27 +91,15 @@
   }
 }
 
-/* Custom utility classes */
-.text-orange {
-  color: hsl(var(--orange));
+/* Professional button styles */
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 border border-primary;
 }
 
-.bg-orange {
-  background-color: hsl(var(--orange));
+.btn-secondary {
+  @apply bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200;
 }
 
-.bg-orange-light {
-  background-color: hsl(var(--orange-light));
-}
-
-.border-orange {
-  border-color: hsl(var(--orange));
-}
-
-.hover\:bg-orange:hover {
-  background-color: hsl(var(--orange));
-}
-
-.hover\:text-orange:hover {
-  color: hsl(var(--orange));
+.btn-outline {
+  @apply bg-transparent text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200;
 }

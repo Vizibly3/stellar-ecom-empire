@@ -11,7 +11,7 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-orange rounded flex items-center justify-center">
+              <div className="h-8 w-8 bg-primary rounded flex items-center justify-center">
                 <span className="text-white font-bold text-sm">TG</span>
               </div>
               <span className="text-xl font-bold text-white">
@@ -22,13 +22,13 @@ export function Footer() {
               Your trusted source for computer and printer accessories
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-orange">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-orange">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-orange">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
@@ -39,22 +39,22 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/products" className="text-gray-400 hover:text-orange">
+                <Link to="/products" className="text-gray-400 hover:text-white transition-colors">
                   All Products
                 </Link>
               </li>
               <li>
-                <Link to="/categories" className="text-gray-400 hover:text-orange">
+                <Link to="/categories" className="text-gray-400 hover:text-white transition-colors">
                   Categories
                 </Link>
               </li>
               <li>
-                <Link to="/deals" className="text-gray-400 hover:text-orange">
+                <Link to="/deals" className="text-gray-400 hover:text-white transition-colors">
                   Deals
                 </Link>
               </li>
               <li>
-                <Link to="/brands" className="text-gray-400 hover:text-orange">
+                <Link to="/brands" className="text-gray-400 hover:text-white transition-colors">
                   Brands
                 </Link>
               </li>
@@ -66,22 +66,22 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Customer Service</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   Shipping Info
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   Returns & Exchanges
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   FAQ
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
                   Support
                 </a>
               </li>
@@ -113,10 +113,10 @@ export function Footer() {
             © 2024 {siteConfig.name}. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-400 hover:text-orange text-sm">
+            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-gray-400 hover:text-orange text-sm">
+            <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
               Terms of Service
             </a>
           </div>
