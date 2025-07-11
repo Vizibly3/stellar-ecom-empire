@@ -41,18 +41,18 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password. Please check your credentials and try again.');
         } else if (error.message.includes('Email not confirmed')) {
-          toast.error('Please verify your email address before signing in.');
+          toast.error('Please check your email and click the verification link to activate your account.');
         } else {
-          toast.error(error.message || 'Failed to sign in. Please try again.');
+          toast.error('Login failed. Please check your credentials and try again.');
         }
       } else {
-        toast.success('Welcome back!');
+        toast.success('Welcome back! You have successfully logged in.');
         onClose();
         setLoginForm({ email: '', password: '' });
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('An unexpected error occurred. Please try again.');
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -62,12 +62,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     e.preventDefault();
     
     if (signupForm.password !== signupForm.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Passwords do not match. Please make sure both passwords are the same.');
       return;
     }
 
     if (signupForm.password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
+      toast.error('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (!signupForm.email || !signupForm.email.includes('@')) {
+      toast.error('Please enter a valid email address.');
       return;
     }
 
@@ -76,23 +81,26 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName);
       if (error) {
+        console.error('Signup error details:', error);
         if (error.message.includes('User already registered')) {
-          toast.error('An account with this email already exists. Please sign in instead.');
+          toast.error('An account with this email already exists. Please try logging in instead.');
         } else if (error.message.includes('weak password')) {
-          toast.error('Password is too weak. Please use a stronger password.');
+          toast.error('Password is too weak. Please use a stronger password with at least 6 characters.');
         } else if (error.message.includes('invalid email')) {
           toast.error('Please enter a valid email address.');
+        } else if (error.message.includes('Database error') || error.message.includes('relation "profiles" does not exist')) {
+          toast.error('Account creation is temporarily unavailable. Please try again later or contact support.');
         } else {
-          toast.error(error.message || 'Failed to create account. Please try again.');
+          toast.error('Account creation failed. Please try again or contact support if the problem persists.');
         }
       } else {
-        toast.success('Account created successfully! Please check your email to verify your account.');
+        toast.success('Account created successfully! Please check your email to verify your account before logging in.');
         onClose();
         setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
       }
     } catch (error) {
       console.error('Signup error:', error);
-      toast.error('An unexpected error occurred. Please try again.');
+      toast.error('Something went wrong during account creation. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -102,59 +110,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Sign in to TechGenius</DialogTitle>
+          <DialogTitle>Welcome to ByteCart</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue="signup" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="login">Sign In</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="login">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={loginForm.email}
-                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full btn-primary"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </form>
-          </TabsContent>
           
           <TabsContent value="signup">
             <form onSubmit={handleSignup} className="space-y-4">
@@ -221,7 +184,52 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 className="w-full btn-primary"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating account...' : 'Create Account'}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </Button>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="login">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={loginForm.email}
+                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full btn-primary"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
             </form>
           </TabsContent>

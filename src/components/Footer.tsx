@@ -1,6 +1,8 @@
 
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { siteConfig } from '@/config/site';
 
 export function Footer() {
@@ -9,12 +11,12 @@ export function Footer() {
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
         <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Company Info */}
-            <div>
+            <div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-6">
                 <div className="h-8 w-8 bg-white rounded flex items-center justify-center">
-                  <span className="text-black font-bold text-sm">TG</span>
+                  <span className="text-black font-bold text-sm">BC</span>
                 </div>
                 <span className="text-xl font-bold">{siteConfig.name}</span>
               </div>
@@ -102,24 +104,35 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Contact Info */}
+            {/* Newsletter & Contact */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">Contact Info</h3>
-              <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-6">Stay Updated</h3>
+              <p className="text-gray-300 text-sm mb-4">
+                Subscribe to get updates on new products and exclusive deals.
+              </p>
+              <div className="flex flex-col space-y-3 mb-6">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white"
+                />
+                <Button className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 transition-all duration-200 w-full">
+                  Subscribe
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-4 w-4 text-gray-400" />
+                  <p className="text-gray-300 text-sm">{siteConfig.phone}</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Mail className="h-4 w-4 text-gray-400" />
+                  <p className="text-gray-300 text-sm">{siteConfig.email}</p>
+                </div>
                 <div className="flex items-start space-x-3">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-gray-300">123 Tech Street</p>
-                    <p className="text-gray-300">Digital City, DC 12345</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                  <p className="text-gray-300">+1 (555) 123-4567</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                  <p className="text-gray-300">support@techgenius.com</p>
+                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <p className="text-gray-300 text-sm">{siteConfig.address}</p>
                 </div>
               </div>
             </div>

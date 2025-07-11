@@ -104,16 +104,16 @@
   @apply bg-transparent text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200;
 }
 
-/* Category slider animation */
-.category-slider {
-  animation: slide 20s linear infinite;
+/* Category slider animation - slower and seamless */
+.category-slider-slow {
+  animation: slide-slow 60s linear infinite;
 }
 
-@keyframes slide {
+@keyframes slide-slow {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  100% { transform: translateX(-33.333%); }
 }
 
-.category-slider:hover {
+.category-slider-slow:hover {
   animation-play-state: paused;
 }

@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X, Heart } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
@@ -50,7 +50,7 @@ export function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-black rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">TG</span>
+                <span className="text-white font-bold text-sm">BC</span>
               </div>
               <span className="text-xl font-bold text-black">
                 {siteConfig.name}
@@ -72,11 +72,6 @@ export function Header() {
 
             {/* Right Section */}
             <div className="flex items-center space-x-4">
-              {/* Wishlist */}
-              <Button variant="ghost" size="sm" className="hidden md:flex btn-secondary">
-                <Heart className="h-5 w-5" />
-              </Button>
-
               {/* Cart */}
               <Link to="/cart">
                 <Button variant="ghost" size="sm" className="relative btn-secondary">
@@ -104,14 +99,6 @@ export function Header() {
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setIsAuthModalOpen(true)}
-                      className="btn-secondary"
-                    >
-                      Sign In
-                    </Button>
                     <Button 
                       size="sm" 
                       className="btn-primary"

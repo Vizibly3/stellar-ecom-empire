@@ -1,15 +1,15 @@
 
 export const siteConfig = {
-  name: "TechGenius",
+  name: "ByteCart",
   description: "Your one-stop shop for computer and printer accessories",
-  url: "https://techgenius.site",
-  email: "support@techgenius.site",
+  url: "https://bytecart.site",
+  email: "support@bytecart.site",
   phone: "+1 (555) 123-4567",
   address: "123 Tech Street, Silicon Valley, CA 94000",
   social: {
-    twitter: "@techgenius",
-    facebook: "techgenius",
-    instagram: "techgenius"
+    twitter: "@bytecart",
+    facebook: "bytecart",
+    instagram: "bytecart"
   },
   business: {
     hours: "Mon-Fri: 9AM-6PM PST",
