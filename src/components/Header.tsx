@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { totalItems } = useCart();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
@@ -23,6 +24,12 @@ export function Header() {
     } catch (error) {
       toast.error('Failed to sign out');
     }
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    window.scrollTo(0, 0);
+    setIsMenuOpen(false);
   };
 
   return (
@@ -48,14 +55,14 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
+            <button onClick={() => handleNavigation('/')} className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-black rounded flex items-center justify-center">
                 <span className="text-white font-bold text-sm">BC</span>
               </div>
               <span className="text-xl font-bold text-black">
                 {siteConfig.name}
               </span>
-            </Link>
+            </button>
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:flex items-center flex-1 max-w-2xl mx-8">
@@ -73,7 +80,7 @@ export function Header() {
             {/* Right Section */}
             <div className="flex items-center space-x-4">
               {/* Cart */}
-              <Link to="/cart">
+              <button onClick={() => handleNavigation('/cart')}>
                 <Button variant="ghost" size="sm" className="relative btn-secondary">
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
@@ -82,17 +89,17 @@ export function Header() {
                     </span>
                   )}
                 </Button>
-              </Link>
+              </button>
 
               {/* User Menu */}
               <div className="flex items-center space-x-2">
                 {user ? (
                   <div className="flex items-center space-x-2">
-                    <Link to="/profile">
+                    <button onClick={() => handleNavigation('/profile')}>
                       <Button variant="ghost" size="sm" className="btn-secondary">
                         <User className="h-5 w-5" />
                       </Button>
-                    </Link>
+                    </button>
                     <Button variant="ghost" size="sm" onClick={handleSignOut} className="btn-secondary">
                       Sign Out
                     </Button>
@@ -124,24 +131,27 @@ export function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8 py-3 border-t">
-            <Link to="/categories" className="text-gray-700 hover:text-primary font-medium">
+            <button onClick={() => handleNavigation('/')} className="text-gray-700 hover:text-primary font-medium">
+              Home
+            </button>
+            <button onClick={() => handleNavigation('/categories')} className="text-gray-700 hover:text-primary font-medium">
               All Categories
-            </Link>
-            <Link to="/products" className="text-gray-700 hover:text-primary">
+            </button>
+            <button onClick={() => handleNavigation('/products')} className="text-gray-700 hover:text-primary">
               Products
-            </Link>
-            <Link to="/deals" className="text-gray-700 hover:text-primary">
+            </button>
+            <button onClick={() => handleNavigation('/deals')} className="text-gray-700 hover:text-primary">
               Deals
-            </Link>
-            <Link to="/brands" className="text-gray-700 hover:text-primary">
+            </button>
+            <button onClick={() => handleNavigation('/brands')} className="text-gray-700 hover:text-primary">
               Brands
-            </Link>
-            <Link to="/about" className="text-gray-700 hover:text-primary">
+            </button>
+            <button onClick={() => handleNavigation('/about')} className="text-gray-700 hover:text-primary">
               About
-            </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-primary">
+            </button>
+            <button onClick={() => handleNavigation('/contact')} className="text-gray-700 hover:text-primary">
               Contact
-            </Link>
+            </button>
           </nav>
 
           {/* Mobile Menu */}
@@ -157,34 +167,36 @@ export function Header() {
                 </div>
               </div>
               <nav className="flex flex-col space-y-4">
-                <Link
-                  to="/categories"
-                  className="text-gray-700 hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
+                <button
+                  onClick={() => handleNavigation('/')}
+                  className="text-gray-700 hover:text-primary text-left"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => handleNavigation('/categories')}
+                  className="text-gray-700 hover:text-primary text-left"
                 >
                   All Categories
-                </Link>
-                <Link
-                  to="/products"
-                  className="text-gray-700 hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
+                </button>
+                <button
+                  onClick={() => handleNavigation('/products')}
+                  className="text-gray-700 hover:text-primary text-left"
                 >
                   Products
-                </Link>
-                <Link
-                  to="/deals"
-                  className="text-gray-700 hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
+                </button>
+                <button
+                  onClick={() => handleNavigation('/deals')}
+                  className="text-gray-700 hover:text-primary text-left"
                 >
                   Deals
-                </Link>
-                <Link
-                  to="/brands"
-                  className="text-gray-700 hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
+                </button>
+                <button
+                  onClick={() => handleNavigation('/brands')}
+                  className="text-gray-700 hover:text-primary text-left"
                 >
                   Brands
-                </Link>
+                </button>
               </nav>
             </div>
           )}

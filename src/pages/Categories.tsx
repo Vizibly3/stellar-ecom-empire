@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { ArrowRight, Package } from 'lucide-react';
 
 export default function Categories() {
@@ -76,6 +77,9 @@ export default function Categories() {
           )}
         </div>
       </section>
+
+      {/* Testimonials */}
+      <TestimonialsSection />
 
       {/* CTA Section */}
       <section className="py-16 bg-white">

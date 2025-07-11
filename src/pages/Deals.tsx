@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from '@/components/ProductCard';
+import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { Clock, Zap, Gift } from 'lucide-react';
 
 export default function Deals() {
@@ -118,6 +119,9 @@ export default function Deals() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials */}
+      <TestimonialsSection />
 
       {/* Newsletter Signup */}
       <section className="py-16 bg-gray-900 text-white">

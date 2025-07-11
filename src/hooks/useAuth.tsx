@@ -22,15 +22,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Handle new user signup - create profile
+        if (event === 'SIGNED_UP' && session?.user) {
+          console.log('Creating profile for new user:', session.user.id);
+          try {
+            const { error } = await supabase
+              .from('profiles')
+              .insert({
+                id: session.user.id,
+                email: session.user.email || '',
+                full_name: session.user.user_metadata?.full_name || session.user.email,
+                role: session.user.email === 'admin@bytecart.site' ? 'admin' : 'customer'
+              });
+            
+            if (error) {
+              console.error('Error creating profile:', error);
+            } else {
+              console.log('Profile created successfully');
+            }
+          } catch (error) {
+            console.error('Failed to create profile:', error);
+          }
+        }
+        
         setLoading(false);
       }
     );
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
