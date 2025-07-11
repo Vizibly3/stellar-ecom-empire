@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -254,11 +253,12 @@ export default function AdminPanel() {
         if (error) throw error;
         toast.success('User updated successfully');
       } else {
-        const { error } = await supabase
-          .from('profiles')
-          .insert([userData]);
-        if (error) throw error;
-        toast.success('User created successfully');
+        // For new users, we need to create an auth user first
+        // Since we can't create auth users directly, we'll show a message
+        toast.error('Creating new users requires auth setup. Please use Supabase Auth to create users first.');
+        setIsDialogOpen(false);
+        setEditingUser(null);
+        return;
       }
 
       setIsDialogOpen(false);
@@ -581,6 +581,9 @@ export default function AdminPanel() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>{editingUser ? 'Edit User' : 'Add User'}</DialogTitle>
+                  <DialogDescription>
+                    {!editingUser && 'Note: New users must be created through Supabase Auth first.'}
+                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={(e) => {
                   e.preventDefault();
@@ -605,6 +608,7 @@ export default function AdminPanel() {
                         type="email"
                         defaultValue={editingUser?.email || ''}
                         className="col-span-3"
+                        disabled={!editingUser}
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -628,7 +632,9 @@ export default function AdminPanel() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button type="submit">{editingUser ? 'Update' : 'Create'}</Button>
+                    <Button type="submit" disabled={!editingUser}>
+                      {editingUser ? 'Update' : 'Create'}
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
