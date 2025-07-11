@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         // Check if user is admin - SIMPLIFIED LOGIC
-        if (session?.user?.email === 'admin@bytecart.site') {
+        if (session?.user?.email === 'admin@bytecart.com') {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       
       // Check if user is admin - SIMPLIFIED LOGIC
-      if (session?.user?.email === 'admin@bytecart.site') {
+      if (session?.user?.email === 'admin@bytecart.com') {
         setIsAdmin(true);
       } else {
         setIsAdmin(false);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('Attempting login with:', email);
     
     // HARDCODED ADMIN CHECK - DIRECT APPROACH
-    if (email === 'admin@bytecart.site' && password === 'admin123') {
+    if (email === 'admin@bytecart.com' && password === 'admin123') {
       console.log('Admin credentials detected - proceeding with signup/signin');
       
       // Try to sign up first (in case admin doesn't exist)
@@ -76,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           },
         },
       });
+      
+      console.log('Signup result:', signUpError ? 'failed' : 'success', signUpError?.message);
       
       // Whether signup succeeded or failed, try to sign in
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -126,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: data.user.id,
             email: email,
             full_name: fullName || '',
-            role: email === 'admin@bytecart.site' ? 'admin' : 'customer',
+            role: email === 'admin@bytecart.com' ? 'admin' : 'customer',
           });
         
         if (profileError) {
