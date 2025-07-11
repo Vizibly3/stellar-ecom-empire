@@ -8,6 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Users, Package, ShoppingCart, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface Profile {
   id: string;
@@ -32,10 +40,11 @@ interface Order {
   total_amount: number;
   status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
   created_at: string;
-  profiles: {
-    full_name: string;
+  user_id: string;
+  profile?: {
+    full_name: string | null;
     email: string;
-  };
+  } | null;
 }
 
 export default function AdminPanel() {
@@ -76,7 +85,17 @@ export default function AdminPanel() {
 
       setProfiles(profilesData || []);
       setProducts(productsData || []);
-      setOrders(ordersData || []);
+      
+      // Transform orders data to match our interface
+      const transformedOrders = ordersData?.map(order => ({
+        ...order,
+        profile: order.profiles ? {
+          full_name: order.profiles.full_name,
+          email: order.profiles.email
+        } : null
+      })) || [];
+      
+      setOrders(transformedOrders);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load admin data');
@@ -116,6 +135,23 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Error updating product:', error);
       toast.error('Failed to update product status');
+    }
+  };
+
+  const updateUserRole = async (userId: string, newRole: 'admin' | 'customer') => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast.success('User role updated successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast.error('Failed to update user role');
     }
   };
 
@@ -208,24 +244,41 @@ export default function AdminPanel() {
               <CardDescription>Manage registered users and their roles</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {profiles.map((profile) => (
-                  <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-semibold">{profile.full_name || 'No Name'}</h3>
-                      <p className="text-sm text-gray-600">{profile.email}</p>
-                      <p className="text-xs text-gray-500">
-                        Joined: {new Date(profile.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'}>
-                        {profile.role}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {profiles.map((profile) => (
+                    <TableRow key={profile.id}>
+                      <TableCell>{profile.full_name || 'No Name'}</TableCell>
+                      <TableCell>{profile.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'}>
+                          {profile.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{new Date(profile.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <select
+                          value={profile.role}
+                          onChange={(e) => updateUserRole(profile.id, e.target.value as 'admin' | 'customer')}
+                          className="border rounded px-2 py-1 text-sm"
+                        >
+                          <option value="customer">Customer</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -237,29 +290,40 @@ export default function AdminPanel() {
               <CardDescription>Manage products and their availability</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {products.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-semibold">{product.title}</h3>
-                      <p className="text-sm text-gray-600">${product.price}</p>
-                      <p className="text-xs text-gray-500">Stock: {product.stock}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={product.is_active ? 'default' : 'secondary'}>
-                        {product.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleProductStatus(product.id, product.is_active)}
-                      >
-                        {product.is_active ? 'Deactivate' : 'Activate'}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Stock</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>{product.title}</TableCell>
+                      <TableCell>${product.price}</TableCell>
+                      <TableCell>{product.stock}</TableCell>
+                      <TableCell>
+                        <Badge variant={product.is_active ? 'default' : 'secondary'}>
+                          {product.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleProductStatus(product.id, product.is_active)}
+                        >
+                          {product.is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -271,44 +335,55 @@ export default function AdminPanel() {
               <CardDescription>View and manage customer orders</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {orders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-semibold">#{order.order_number}</h3>
-                      <p className="text-sm text-gray-600">
-                        Customer: {order.profiles?.full_name || 'Unknown'} ({order.profiles?.email})
-                      </p>
-                      <p className="text-sm text-gray-600">Amount: ${order.total_amount}</p>
-                      <p className="text-xs text-gray-500">
-                        Date: {new Date(order.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge 
-                        variant={
-                          order.status === 'delivered' ? 'default' :
-                          order.status === 'shipped' ? 'secondary' :
-                          order.status === 'cancelled' ? 'destructive' : 
-                          'outline'
-                        }
-                      >
-                        {order.status}
-                      </Badge>
-                      <select
-                        value={order.status}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
-                        className="border rounded px-2 py-1 text-sm"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Order #</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell>#{order.order_number}</TableCell>
+                      <TableCell>
+                        {order.profile?.full_name || 'Unknown'} <br />
+                        <span className="text-sm text-gray-500">{order.profile?.email}</span>
+                      </TableCell>
+                      <TableCell>${order.total_amount}</TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={
+                            order.status === 'delivered' ? 'default' :
+                            order.status === 'shipped' ? 'secondary' :
+                            order.status === 'cancelled' ? 'destructive' : 
+                            'outline'
+                          }
+                        >
+                          {order.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <select
+                          value={order.status}
+                          onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+                          className="border rounded px-2 py-1 text-sm"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
