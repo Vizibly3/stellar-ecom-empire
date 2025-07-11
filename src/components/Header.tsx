@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, profile, isAdmin, signOut } = useAuth();
   const { totalItems } = useCart();
   const navigate = useNavigate();
 
@@ -92,6 +92,13 @@ export function Header() {
                         <User className="h-5 w-5" />
                       </Button>
                     </button>
+                    {isAdmin && (
+                      <button onClick={() => handleNavigation('/admin')}>
+                        <Button variant="ghost" size="sm" className="btn-secondary">
+                          <Settings className="h-5 w-5" />
+                        </Button>
+                      </button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={handleSignOut} className="btn-secondary">
                       Sign Out
                     </Button>
@@ -183,6 +190,24 @@ export function Header() {
                 >
                   Brands
                 </button>
+                {user && (
+                  <>
+                    <button
+                      onClick={() => handleNavigation('/profile')}
+                      className="text-gray-700 hover:text-primary text-left"
+                    >
+                      Profile
+                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleNavigation('/admin')}
+                        className="text-gray-700 hover:text-primary text-left"
+                      >
+                        Admin Panel
+                      </button>
+                    )}
+                  </>
+                )}
               </nav>
             </div>
           )}
