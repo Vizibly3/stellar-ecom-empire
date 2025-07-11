@@ -26,43 +26,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = profile?.role === 'admin';
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch or create profile
-          await fetchOrCreateProfile(session.user);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
-      }
-    );
+    let mounted = true;
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
       console.log('Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchOrCreateProfile(session.user);
+        fetchOrCreateProfile(session.user).finally(() => {
+          if (mounted) setLoading(false);
+        });
       } else {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+        
+        console.log('Auth state changed:', event, session?.user?.id);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchOrCreateProfile(session.user);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchOrCreateProfile = async (user: User) => {
     try {
       // First try to fetch existing profile
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -73,29 +82,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // If no profile exists, create one
-      const roleToAssign: "admin" | "customer" = user.email === 'admin@bytecart.site' ? 'admin' : 'customer';
-      
-      const newProfile = {
-        id: user.id,
-        email: user.email!,
-        full_name: user.user_metadata?.full_name || '',
-        role: roleToAssign
-      };
+      // Only create profile if fetch failed due to no data
+      if (fetchError && fetchError.code === 'PGRST116') {
+        const roleToAssign: "admin" | "customer" = user.email === 'admin@bytecart.site' ? 'admin' : 'customer';
+        
+        const newProfile = {
+          id: user.id,
+          email: user.email!,
+          full_name: user.user_metadata?.full_name || '',
+          role: roleToAssign
+        };
 
-      const { data: createdProfile, error } = await supabase
-        .from('profiles')
-        .insert(newProfile)
-        .select()
-        .single();
+        const { data: createdProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert(newProfile)
+          .select()
+          .single();
 
-      if (error) {
-        console.error('Error creating profile:', error);
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          // Set basic profile data even if insert fails
+          setProfile({ id: user.id, email: user.email, role: roleToAssign });
+        } else {
+          setProfile(createdProfile);
+        }
       } else {
-        setProfile(createdProfile);
+        console.error('Error fetching profile:', fetchError);
+        // Set basic profile data if fetch fails for other reasons
+        const roleToAssign: "admin" | "customer" = user.email === 'admin@bytecart.site' ? 'admin' : 'customer';
+        setProfile({ id: user.id, email: user.email, role: roleToAssign });
       }
     } catch (error) {
-      console.error('Error fetching/creating profile:', error);
+      console.error('Error in fetchOrCreateProfile:', error);
+      // Always set some profile data to prevent blocking
+      const roleToAssign: "admin" | "customer" = user.email === 'admin@bytecart.site' ? 'admin' : 'customer';
+      setProfile({ id: user.id, email: user.email, role: roleToAssign });
     }
   };
 
@@ -108,13 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
         },

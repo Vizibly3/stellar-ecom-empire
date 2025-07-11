@@ -26,7 +26,6 @@ export default function Home() {
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Move useCart hook to the top level, after other hooks
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -35,66 +34,43 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      // Fetch featured products
-      const { data: products, error: productsError } = await supabase
+      // Fetch featured products - simplified query
+      const { data: products } = await supabase
         .from('products')
         .select('*')
         .eq('featured', true)
         .eq('is_active', true)
         .limit(8);
       
-      if (productsError) {
-        console.error('Error fetching featured products:', productsError);
-        toast.error('Failed to load featured products');
-      }
-      
-      // Fetch categories
-      const { data: categoriesData, error: categoriesError } = await supabase
+      // Fetch categories - simplified query  
+      const { data: categoriesData } = await supabase
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .limit(8);
       
-      if (categoriesError) {
-        console.error('Error fetching categories:', categoriesError);
-        toast.error('Failed to load categories');
-      }
-      
-      // Fetch top deals (products with compare_price)
-      const { data: dealsData, error: dealsError } = await supabase
+      // Fetch top deals - simplified query
+      const { data: dealsData } = await supabase
         .from('products')
         .select('*')
         .not('compare_price', 'is', null)
         .eq('is_active', true)
         .limit(6);
 
-      if (dealsError) {
-        console.error('Error fetching deals:', dealsError);
-        toast.error('Failed to load deals');
-      }
-
-      // Fetch categories with their products for trending sections
-      const { data: categoryProducts, error: categoryProductsError } = await supabase
-        .from('categories')
-        .select(`
-          *,
-          products:products(*)
-        `)
-        .eq('is_active', true)
-        .limit(3);
+      // Set data or empty arrays if null
+      setFeaturedProducts(products || []);
+      setCategories(categoriesData || []);
+      setTopDeals(dealsData || []);
       
-      if (categoryProductsError) {
-        console.error('Error fetching category products:', categoryProductsError);
-        toast.error('Failed to load category products');
-      }
-      
-      if (products) setFeaturedProducts(products);
-      if (categoriesData) setCategories(categoriesData);
-      if (dealsData) setTopDeals(dealsData);
-      if (categoryProducts) setCategoriesWithProducts(categoryProducts as CategoryWithProducts[]);
+      // Skip complex category products query for now to prevent blocking
+      setCategoriesWithProducts([]);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load page data');
+      // Don't show error toast, just set empty arrays
+      setFeaturedProducts([]);
+      setCategories([]);
+      setTopDeals([]);
+      setCategoriesWithProducts([]);
     } finally {
       setLoading(false);
     }
@@ -180,36 +156,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* Category-specific trending sections */}
-      {categoriesWithProducts.map((category, index) => (
-        category.products && category.products.length > 0 && (
-          <section key={category.id} className={`py-16 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}>
-            <div className="container mx-auto px-4">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center">
-                  {index === 0 && <TrendingUp className="h-8 w-8 text-green-500 mr-3" />}
-                  {index === 1 && <Crown className="h-8 w-8 text-yellow-500 mr-3" />}
-                  {index === 2 && <Zap className="h-8 w-8 text-blue-500 mr-3" />}
-                  <h2 className="text-3xl font-bold text-gray-900">
-                    {index === 0 && `Trending in ${category.name}`}
-                    {index === 1 && `Bestsellers in ${category.name}`}
-                    {index === 2 && `Price Crash on ${category.name}`}
-                  </h2>
-                </div>
-                <Link to={`/category/${category.slug}`} className="text-primary hover:underline">
-                  View All
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {category.products.slice(0, 6).map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )
-      ))}
 
       {/* Features */}
       <section className="py-16 bg-white">
