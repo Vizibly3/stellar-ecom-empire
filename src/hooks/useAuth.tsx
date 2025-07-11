@@ -10,6 +10,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -26,6 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Check if user is admin
+        const adminCheck = session?.user?.email === 'admin@bytecart.site';
+        setIsAdmin(adminCheck);
+        
         setLoading(false);
       }
     );
@@ -35,6 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Check if user is admin
+      const adminCheck = session?.user?.email === 'admin@bytecart.site';
+      setIsAdmin(adminCheck);
+      
       setLoading(false);
     });
 
@@ -42,6 +54,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    // Check for hardcoded admin credentials
+    if (email === 'admin@bytecart.site' && password === 'admin123') {
+      try {
+        // First try to sign in normally
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) {
+          // If normal signin fails, try to sign up the admin user
+          const { error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                full_name: 'Admin User',
+              },
+            },
+          });
+          
+          if (signUpError) {
+            return { error: signUpError };
+          }
+          
+          // Now try to sign in again
+          const { error: retryError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          
+          return { error: retryError };
+        }
+        
+        return { error: null };
+      } catch (error) {
+        return { error };
+      }
+    }
+    
+    // Normal login process
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -52,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -62,11 +115,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     });
+
+    // If signup successful, create profile
+    if (!error && data.user) {
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: email,
+            full_name: fullName || '',
+            role: email === 'admin@bytecart.site' ? 'admin' : 'customer',
+          });
+        
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+      } catch (profileError) {
+        console.error('Profile creation failed:', profileError);
+      }
+    }
+    
     return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setIsAdmin(false);
   };
 
   return (
@@ -77,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       loading,
+      isAdmin,
     }}>
       {children}
     </AuthContext.Provider>

@@ -21,6 +21,7 @@ import Terms from '@/pages/Terms';
 import Returns from '@/pages/Returns';
 import Disclaimer from '@/pages/Disclaimer';
 import Shipping from '@/pages/Shipping';
+import AdminPanel from '@/pages/AdminPanel';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ function App() {
                     <Route path="/returns" element={<Returns />} />
                     <Route path="/disclaimer" element={<Disclaimer />} />
                     <Route path="/shipping" element={<Shipping />} />
+                    <Route path="/admin" element={<AdminPanel />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

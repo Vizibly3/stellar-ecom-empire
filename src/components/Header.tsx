@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
   const navigate = useNavigate();
 
@@ -87,6 +87,14 @@ export function Header() {
               <div className="flex items-center space-x-2">
                 {user ? (
                   <div className="flex items-center space-x-2">
+                    {isAdmin && (
+                      <button onClick={() => handleNavigation('/admin')}>
+                        <Button variant="ghost" size="sm" className="btn-secondary">
+                          <Shield className="h-5 w-5" />
+                          <span className="ml-1 hidden sm:inline">Admin</span>
+                        </Button>
+                      </button>
+                    )}
                     <button onClick={() => handleNavigation('/profile')}>
                       <Button variant="ghost" size="sm" className="btn-secondary">
                         <User className="h-5 w-5" />
@@ -183,6 +191,14 @@ export function Header() {
                 >
                   Brands
                 </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleNavigation('/admin')}
+                    className="text-gray-700 hover:text-primary text-left"
+                  >
+                    Admin Panel
+                  </button>
+                )}
               </nav>
             </div>
           )}
