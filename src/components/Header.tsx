@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { siteConfig } from '@/config/site';
 import { AuthModal } from './AuthModal';
+import { SearchBar } from './SearchBar';
 import { toast } from 'sonner';
 
 export function Header() {
@@ -66,15 +66,7 @@ export function Header() {
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:flex items-center flex-1 max-w-2xl mx-8">
-              <div className="relative w-full">
-                <Input
-                  placeholder="Search for products..."
-                  className="pl-4 pr-12 h-12 rounded-lg border-2 border-gray-200 focus:border-primary"
-                />
-                <Button size="sm" className="absolute right-1 top-1 h-10 btn-primary">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
+              <SearchBar className="w-full" />
             </div>
 
             {/* Right Section */}
@@ -158,13 +150,7 @@ export function Header() {
           {isMenuOpen && (
             <div className="md:hidden border-t py-4">
               <div className="mb-4">
-                <div className="relative">
-                  <Input
-                    placeholder="Search products..."
-                    className="pl-4 pr-12 h-10"
-                  />
-                  <Search className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                </div>
+                <SearchBar className="w-full" />
               </div>
               <nav className="flex flex-col space-y-4">
                 <button

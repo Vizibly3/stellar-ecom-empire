@@ -102,58 +102,7 @@ export default function Products() {
         </div>
       </section>
 
-      {/* Browse by Category - Enhanced */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Browse by Category</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Find exactly what you need with our organized product categories
-            </p>
-          </div>
-          <CategorySlider />
-        </div>
-      </section>
-
-      {/* Top Deals Section */}
-      {topDeals.length > 0 && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center">
-                <Flame className="h-8 w-8 text-red-500 mr-3" />
-                <h2 className="text-3xl font-bold text-gray-900">Top Deals</h2>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {topDeals.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Featured Products */}
-      {featuredProducts.length > 0 && (
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center">
-                <TrendingUp className="h-8 w-8 text-green-500 mr-3" />
-                <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Filters and Products */}
+      {/* Filters and Products - Main Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           {/* Filter Bar */}
@@ -232,6 +181,57 @@ export default function Products() {
           )}
         </div>
       </section>
+
+      {/* Browse by Category */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Explore our organized product categories
+            </p>
+          </div>
+          <CategorySlider />
+        </div>
+      </section>
+
+      {/* Top Deals Section */}
+      {topDeals.length > 0 && (
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center">
+                <Flame className="h-8 w-8 text-red-500 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">Top Deals</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {topDeals.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Featured Products */}
+      {featuredProducts.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center">
+                <TrendingUp className="h-8 w-8 text-green-500 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Testimonials */}
       <TestimonialsSection />

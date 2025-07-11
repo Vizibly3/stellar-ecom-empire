@@ -10,6 +10,7 @@ import { Footer } from '@/components/Footer';
 import Home from '@/pages/Home';
 import Products from '@/pages/Products';
 import Categories from '@/pages/Categories';
+import CategoryPage from '@/pages/CategoryPage';
 import Deals from '@/pages/Deals';
 import Brands from '@/pages/Brands';
 import About from '@/pages/About';
@@ -38,6 +39,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/categories" element={<Categories />} />
+                    <Route path="/categories/:slug" element={<CategoryPage />} />
                     <Route path="/deals" element={<Deals />} />
                     <Route path="/brands" element={<Brands />} />
                     <Route path="/about" element={<About />} />
