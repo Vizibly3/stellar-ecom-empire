@@ -16,8 +16,6 @@ import Brands from '@/pages/Brands';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import Cart from '@/pages/Cart';
-import Profile from '@/pages/Profile';
-import AdminPanel from '@/pages/AdminPanel';
 import Privacy from '@/pages/Privacy';
 import Terms from '@/pages/Terms';
 import Returns from '@/pages/Returns';
@@ -47,8 +45,6 @@ function App() {
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/cart" element={<Cart />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/admin" element={<AdminPanel />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/returns" element={<Returns />} />
