@@ -88,10 +88,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           toast.error('Password is too weak. Please use a stronger password with at least 6 characters.');
         } else if (error.message.includes('invalid email')) {
           toast.error('Please enter a valid email address.');
-        } else if (error.message.includes('Database error') || error.message.includes('relation "profiles" does not exist')) {
-          toast.error('Account creation is temporarily unavailable. Please try again later or contact support.');
         } else {
-          toast.error('Account creation failed. Please try again or contact support if the problem persists.');
+          toast.error('We couldn\'t create your account right now. Please try again or contact our support team if the problem continues.');
         }
       } else {
         toast.success('Account created successfully! Please check your email to verify your account before logging in.');
@@ -100,7 +98,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       }
     } catch (error) {
       console.error('Signup error:', error);
-      toast.error('Something went wrong during account creation. Please try again.');
+      toast.error('We encountered an issue while creating your account. Please try again or contact our support team.');
     } finally {
       setIsLoading(false);
     }
@@ -181,7 +179,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               
               <Button 
                 type="submit" 
-                className="w-full btn-primary"
+                className="w-full bg-transparent border border-black text-black hover:bg-black hover:text-white transition-all duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
@@ -226,7 +224,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               
               <Button 
                 type="submit" 
-                className="w-full btn-primary"
+                className="w-full bg-transparent border border-black text-black hover:bg-black hover:text-white transition-all duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing In...' : 'Sign In'}

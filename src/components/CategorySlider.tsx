@@ -1,69 +1,105 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
-
-type Category = Database['public']['Tables']['categories']['Row'];
 
 export function CategorySlider() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [currentTransform, setCurrentTransform] = useState(0);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const { data } = await supabase
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .eq('is_active', true)
-        .limit(8);
+        .eq('is_active', true);
       
-      if (data) {
-        // Triple the categories for seamless infinite loop
-        setCategories([...data, ...data, ...data]);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
+      if (error) throw error;
+      return data;
     }
-  };
+  });
 
-  if (categories.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading categories...</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentTransform(prev => {
+        const cardWidth = 280; // 256px + 24px gap
+        const totalWidth = categories.length * cardWidth;
+        const nextPosition = prev - 1;
+        
+        // Reset to start when we've moved past all cards
+        if (Math.abs(nextPosition) >= totalWidth) {
+          return 0;
+        }
+        
+        return nextPosition;
+      });
+    }, 30); // Slower animation (was 20ms)
+
+    return () => clearInterval(interval);
+  }, [categories.length]);
 
   return (
-    <div className="overflow-hidden">
-      <div className="flex category-slider-slow space-x-6" style={{ width: `calc(220px * ${categories.length} + ${(categories.length - 1) * 24}px)` }}>
-        {categories.map((category, index) => (
-          <Link key={`${category.id}-${index}`} to={`/category/${category.slug}`} className="flex-shrink-0">
-            <Card className="group hover:shadow-lg hover:scale-105 hover:border-gray-300 transition-all duration-300 cursor-pointer w-52 bg-white border border-gray-200">
-              <CardContent className="p-4 text-center">
-                <div className="aspect-square overflow-hidden rounded-lg mb-3 bg-gray-50">
+    <section className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
+        <div className="overflow-hidden">
+          <div 
+            className="flex gap-6 transition-transform duration-100 ease-linear"
+            style={{ 
+              transform: `translateX(${currentTransform}px)`,
+              width: `${(categories.length * 2) * 280}px` // Double width for seamless loop
+            }}
+          >
+            {/* First set of categories */}
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/categories/${category.slug}`}
+                className="flex-shrink-0 w-64 bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-gray-50"
+              >
+                <div className="aspect-square overflow-hidden">
                   <img
-                    src={category.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=200'}
+                    src={category.image_url}
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-                <h3 className="font-medium text-sm text-gray-900 group-hover:text-primary transition-colors duration-200">
-                  {category.name}
-                </h3>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                <div className="p-4 text-center">
+                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm">{category.description}</p>
+                </div>
+              </Link>
+            ))}
+            {/* Duplicate set for seamless loop */}
+            {categories.map((category) => (
+              <Link
+                key={`${category.id}-duplicate`}
+                to={`/categories/${category.slug}`}
+                className="flex-shrink-0 w-64 bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-gray-50"
+              >
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src={category.image_url}
+                    alt={category.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4 text-center">
+                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm">{category.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

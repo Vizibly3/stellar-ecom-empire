@@ -282,47 +282,44 @@ export type Database = {
       profiles: {
         Row: {
           address: Json | null
-          avatar_url: string | null
+          city: string | null
           created_at: string | null
-          date_of_birth: string | null
           email: string
-          first_name: string | null
           full_name: string | null
           id: string
           is_active: boolean | null
-          last_name: string | null
           phone: string | null
+          pin_code: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          state: string | null
           updated_at: string | null
         }
         Insert: {
           address?: Json | null
-          avatar_url?: string | null
+          city?: string | null
           created_at?: string | null
-          date_of_birth?: string | null
           email: string
-          first_name?: string | null
           full_name?: string | null
           id: string
           is_active?: boolean | null
-          last_name?: string | null
           phone?: string | null
+          pin_code?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          state?: string | null
           updated_at?: string | null
         }
         Update: {
           address?: Json | null
-          avatar_url?: string | null
+          city?: string | null
           created_at?: string | null
-          date_of_birth?: string | null
           email?: string
-          first_name?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean | null
-          last_name?: string | null
           phone?: string | null
+          pin_code?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          state?: string | null
           updated_at?: string | null
         }
         Relationships: []

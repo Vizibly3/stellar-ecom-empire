@@ -8,6 +8,12 @@ import { Toaster } from '@/components/ui/sonner';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Home from '@/pages/Home';
+import Products from '@/pages/Products';
+import Categories from '@/pages/Categories';
+import Deals from '@/pages/Deals';
+import Brands from '@/pages/Brands';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
 import Cart from '@/pages/Cart';
 import NotFound from '@/pages/NotFound';
 
@@ -25,6 +31,12 @@ function App() {
                 <main>
                   <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/deals" element={<Deals />} />
+                    <Route path="/brands" element={<Brands />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path="/cart" element={<Cart />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
