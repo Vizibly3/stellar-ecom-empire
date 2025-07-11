@@ -9,6 +9,8 @@ import { useCart } from '@/hooks/useCart';
 import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 import { HeroSlider } from '@/components/HeroSlider';
+import { CategorySlider } from '@/components/CategorySlider';
+import { ProductCard } from '@/components/ProductCard';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type Category = Database['public']['Tables']['categories']['Row'];
@@ -32,30 +34,45 @@ export default function Home() {
   const fetchData = async () => {
     try {
       // Fetch featured products
-      const { data: products } = await supabase
+      const { data: products, error: productsError } = await supabase
         .from('products')
         .select('*')
         .eq('featured', true)
         .eq('is_active', true)
         .limit(8);
       
+      if (productsError) {
+        console.error('Error fetching featured products:', productsError);
+        toast.error('Failed to load featured products');
+      }
+      
       // Fetch categories
-      const { data: categoriesData } = await supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .limit(8);
       
+      if (categoriesError) {
+        console.error('Error fetching categories:', categoriesError);
+        toast.error('Failed to load categories');
+      }
+      
       // Fetch top deals (products with compare_price)
-      const { data: dealsData } = await supabase
+      const { data: dealsData, error: dealsError } = await supabase
         .from('products')
         .select('*')
         .not('compare_price', 'is', null)
         .eq('is_active', true)
         .limit(6);
 
+      if (dealsError) {
+        console.error('Error fetching deals:', dealsError);
+        toast.error('Failed to load deals');
+      }
+
       // Fetch categories with their products for trending sections
-      const { data: categoryProducts } = await supabase
+      const { data: categoryProducts, error: categoryProductsError } = await supabase
         .from('categories')
         .select(`
           *,
@@ -64,36 +81,38 @@ export default function Home() {
         .eq('is_active', true)
         .limit(3);
       
+      if (categoryProductsError) {
+        console.error('Error fetching category products:', categoryProductsError);
+        toast.error('Failed to load category products');
+      }
+      
       if (products) setFeaturedProducts(products);
       if (categoriesData) setCategories(categoriesData);
       if (dealsData) setTopDeals(dealsData);
       if (categoryProducts) setCategoriesWithProducts(categoryProducts as CategoryWithProducts[]);
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast.error('Failed to load page data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddToCart = async (productId: string) => {
+  const handleAddToCart = async (productId: string, productTitle: string) => {
     try {
       await addToCart(productId);
-      toast.success('Added to cart!');
+      toast.success(`${productTitle} added to cart!`);
     } catch (error) {
-      toast.error('Failed to add to cart');
+      toast.error('Failed to add item to cart. Please try again.');
     }
-  };
-
-  const calculateDiscount = (price: number, comparePrice: number) => {
-    return Math.round(((comparePrice - price) / comparePrice) * 100);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -115,200 +134,79 @@ export default function Home() {
               View All Categories
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {categories.map((category) => (
-              <Link key={category.id} to={`/category/${category.slug}`}>
-                <Card className="group hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4 text-center">
-                    <div className="aspect-square overflow-hidden rounded-lg mb-3">
-                      <img
-                        src={category.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=200'}
-                        alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                      />
-                    </div>
-                    <h3 className="font-medium text-sm text-gray-900">{category.name}</h3>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          <CategorySlider />
         </div>
       </section>
 
       {/* Top Deals Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center">
-              <Flame className="h-8 w-8 text-red-500 mr-3" />
-              <h2 className="text-3xl font-bold text-gray-900">Top Deals</h2>
-            </div>
-            <Link to="/deals" className="text-primary hover:underline">
-              View All Deals
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topDeals.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="relative aspect-square overflow-hidden">
-                    <img
-                      src={product.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400'}
-                      alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {product.compare_price && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
-                        -{calculateDiscount(product.price, product.compare_price)}%
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.title}</h3>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-gray-900">${product.price}</span>
-                        {product.compare_price && (
-                          <span className="text-sm text-gray-500 line-through">
-                            ${product.compare_price}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => handleAddToCart(product.id)}
-                      className="w-full btn-primary"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
-            <Link to="/products" className="text-primary hover:underline">
-              View All Products
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="aspect-square overflow-hidden">
-                    <img
-                      src={product.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400'}
-                      alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.title}</h3>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold text-gray-900">${product.price}</span>
-                        {product.compare_price && (
-                          <span className="text-sm text-gray-500 line-through">
-                            ${product.compare_price}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => handleAddToCart(product.id)}
-                      className="w-full btn-primary"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Category-specific trending sections */}
-      {categoriesWithProducts.map((category, index) => (
-        <section key={category.id} className={`py-16 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}>
+      {topDeals.length > 0 && (
+        <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center">
-                {index === 0 && <TrendingUp className="h-8 w-8 text-green-500 mr-3" />}
-                {index === 1 && <Crown className="h-8 w-8 text-yellow-500 mr-3" />}
-                {index === 2 && <Zap className="h-8 w-8 text-blue-500 mr-3" />}
-                <h2 className="text-3xl font-bold text-gray-900">
-                  {index === 0 && `Trending in ${category.name}`}
-                  {index === 1 && `Bestsellers in ${category.name}`}
-                  {index === 2 && `Price Crash on ${category.name}`}
-                </h2>
+                <Flame className="h-8 w-8 text-red-500 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">Top Deals</h2>
               </div>
-              <Link to={`/category/${category.slug}`} className="text-primary hover:underline">
-                View All
+              <Link to="/deals" className="text-primary hover:underline">
+                View All Deals
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {category.products.slice(0, 4).map((product) => (
-                <Card key={product.id} className="group hover:shadow-lg transition-shadow">
-                  <CardContent className="p-0">
-                    <div className="aspect-square overflow-hidden">
-                      <img
-                        src={product.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400'}
-                        alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.title}</h3>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-gray-900">${product.price}</span>
-                          {product.compare_price && (
-                            <span className="text-sm text-gray-500 line-through">
-                              ${product.compare_price}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => handleAddToCart(product.id)}
-                        className="w-full btn-primary"
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {topDeals.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
         </section>
+      )}
+
+      {/* Featured Products */}
+      {featuredProducts.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
+              <Link to="/products" className="text-primary hover:underline">
+                View All Products
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Category-specific trending sections */}
+      {categoriesWithProducts.map((category, index) => (
+        category.products && category.products.length > 0 && (
+          <section key={category.id} className={`py-16 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}>
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center">
+                  {index === 0 && <TrendingUp className="h-8 w-8 text-green-500 mr-3" />}
+                  {index === 1 && <Crown className="h-8 w-8 text-yellow-500 mr-3" />}
+                  {index === 2 && <Zap className="h-8 w-8 text-blue-500 mr-3" />}
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    {index === 0 && `Trending in ${category.name}`}
+                    {index === 1 && `Bestsellers in ${category.name}`}
+                    {index === 2 && `Price Crash on ${category.name}`}
+                  </h2>
+                </div>
+                <Link to={`/category/${category.slug}`} className="text-primary hover:underline">
+                  View All
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {category.products.slice(0, 6).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )
       ))}
 
       {/* Features */}
@@ -420,7 +318,7 @@ export default function Home() {
                 placeholder="Enter your email"
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900"
               />
-              <Button className="btn-primary px-6 py-3">
+              <Button className="btn-primary px-6 py-3 bg-white text-black border-white hover:bg-gray-100">
                 Subscribe
               </Button>
             </div>

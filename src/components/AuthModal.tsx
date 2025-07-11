@@ -38,13 +38,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       const { error } = await signIn(loginForm.email, loginForm.password);
       if (error) {
-        toast.error(error.message);
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password. Please check your credentials and try again.');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Please verify your email address before signing in.');
+        } else {
+          toast.error(error.message || 'Failed to sign in. Please try again.');
+        }
       } else {
         toast.success('Welcome back!');
         onClose();
+        setLoginForm({ email: '', password: '' });
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      console.error('Login error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -58,18 +66,33 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       return;
     }
 
+    if (signupForm.password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName);
       if (error) {
-        toast.error(error.message);
+        if (error.message.includes('User already registered')) {
+          toast.error('An account with this email already exists. Please sign in instead.');
+        } else if (error.message.includes('weak password')) {
+          toast.error('Password is too weak. Please use a stronger password.');
+        } else if (error.message.includes('invalid email')) {
+          toast.error('Please enter a valid email address.');
+        } else {
+          toast.error(error.message || 'Failed to create account. Please try again.');
+        }
       } else {
         toast.success('Account created successfully! Please check your email to verify your account.');
         onClose();
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      console.error('Signup error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -165,10 +188,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <Input
                     id="signupPassword"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
+                    placeholder="Create a password (min 6 characters)"
                     value={signupForm.password}
                     onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                     required
+                    minLength={6}
                   />
                   <button
                     type="button"

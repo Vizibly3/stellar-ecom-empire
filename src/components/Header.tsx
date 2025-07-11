@@ -8,12 +8,22 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { siteConfig } from '@/config/site';
 import { AuthModal } from './AuthModal';
+import { toast } from 'sonner';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { totalItems } = useCart();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success('Signed out successfully');
+    } catch (error) {
+      toast.error('Failed to sign out');
+    }
+  };
 
   return (
     <>
@@ -63,16 +73,16 @@ export function Header() {
             {/* Right Section */}
             <div className="flex items-center space-x-4">
               {/* Wishlist */}
-              <Button variant="ghost" size="sm" className="hidden md:flex">
+              <Button variant="ghost" size="sm" className="hidden md:flex btn-secondary">
                 <Heart className="h-5 w-5" />
               </Button>
 
               {/* Cart */}
               <Link to="/cart">
-                <Button variant="ghost" size="sm" className="relative">
+                <Button variant="ghost" size="sm" className="relative btn-secondary">
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {totalItems}
                     </span>
                   )}
@@ -84,11 +94,11 @@ export function Header() {
                 {user ? (
                   <div className="flex items-center space-x-2">
                     <Link to="/profile">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="btn-secondary">
                         <User className="h-5 w-5" />
                       </Button>
                     </Link>
-                    <Button variant="ghost" size="sm" onClick={signOut}>
+                    <Button variant="ghost" size="sm" onClick={handleSignOut} className="btn-secondary">
                       Sign Out
                     </Button>
                   </div>
@@ -98,6 +108,7 @@ export function Header() {
                       variant="ghost" 
                       size="sm"
                       onClick={() => setIsAuthModalOpen(true)}
+                      className="btn-secondary"
                     >
                       Sign In
                     </Button>
@@ -116,7 +127,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="md:hidden"
+                className="md:hidden btn-secondary"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

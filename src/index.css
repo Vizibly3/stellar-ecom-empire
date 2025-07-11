@@ -93,13 +93,27 @@
 
 /* Professional button styles */
 .btn-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90 border border-primary;
+  @apply bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200;
 }
 
 .btn-secondary {
-  @apply bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200;
+  @apply bg-transparent text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200;
 }
 
 .btn-outline {
   @apply bg-transparent text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200;
+}
+
+/* Category slider animation */
+.category-slider {
+  animation: slide 20s linear infinite;
+}
+
+@keyframes slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+.category-slider:hover {
+  animation-play-state: paused;
 }
