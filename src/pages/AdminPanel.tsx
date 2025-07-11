@@ -74,27 +74,31 @@ export default function AdminPanel() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Fetch orders with user info
+      // Fetch orders first
       const { data: ordersData } = await supabase
         .from('orders')
-        .select(`
-          *,
-          profiles!orders_user_id_fkey(full_name, email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
+
+      // Then fetch profiles to join manually
+      const { data: allProfiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email');
+
+      // Create a map of profiles for quick lookup
+      const profileMap = new Map();
+      allProfiles?.forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      // Transform orders data to include profile info
+      const transformedOrders = ordersData?.map(order => ({
+        ...order,
+        profile: profileMap.get(order.user_id) || null
+      })) || [];
 
       setProfiles(profilesData || []);
       setProducts(productsData || []);
-      
-      // Transform orders data to match our interface
-      const transformedOrders = ordersData?.map(order => ({
-        ...order,
-        profile: order.profiles ? {
-          full_name: order.profiles.full_name,
-          email: order.profiles.email
-        } : null
-      })) || [];
-      
       setOrders(transformedOrders);
     } catch (error) {
       console.error('Error fetching data:', error);
