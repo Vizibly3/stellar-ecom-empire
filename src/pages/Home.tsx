@@ -1,10 +1,9 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, ShoppingCart, Truck, Shield, Headphones } from 'lucide-react';
+import { ArrowRight, Star, ShoppingCart, Truck, Shield, Headphones, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/hooks/useCart';
 import { Database } from '@/integrations/supabase/types';
@@ -16,319 +15,224 @@ type Category = Database['public']['Tables']['categories']['Row'];
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
-    fetchFeaturedProducts();
-    fetchCategories();
+    fetchData();
   }, []);
 
-  const fetchFeaturedProducts = async () => {
-    const { data } = await supabase
-      .from('products')
-      .select('*')
-      .eq('featured', true)
-      .eq('is_active', true)
-      .limit(6);
-    
-    if (data) setFeaturedProducts(data);
+  const fetchData = async () => {
+    try {
+      // Fetch featured products
+      const { data: products } = await supabase
+        .from('products')
+        .select('*')
+        .eq('featured', true)
+        .eq('is_active', true)
+        .limit(8);
+      
+      // Fetch categories
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .limit(8);
+      
+      if (products) setFeaturedProducts(products);
+      if (categoriesData) setCategories(categoriesData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const fetchCategories = async () => {
-    const { data } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('is_active', true)
-      .limit(8);
-    
-    if (data) setCategories(data);
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId);
+      toast.success('Added to cart!');
+    } catch (error) {
+      toast.error('Failed to add to cart');
+    }
   };
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success('Thank you for subscribing to our newsletter!');
-    setEmail('');
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 py-20">
+    <div className="min-h-screen bg-white">
+      {/* Hero Banner */}
+      <section className="bg-gradient-to-r from-gray-50 to-gray-100 py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Upgrade Your Tech Setup with{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Premium Accessories
-              </span>
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Discover the latest computer and printer accessories from top brands. 
-              Fast shipping, competitive prices, and expert support.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/products">
-                <Button size="lg" className="text-lg px-8">
-                  Shop Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/categories">
-                <Button variant="outline" size="lg" className="text-lg px-8">
+          <div className="flex flex-col lg:flex-row items-center">
+            <div className="lg:w-1/2 mb-8 lg:mb-0">
+              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+                Upgrade Your Tech Setup
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Discover premium computer and printer accessories at unbeatable prices. 
+                Fast shipping, quality guaranteed.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/products">
+                  <Button size="lg" className="bg-orange hover:bg-orange text-white px-8 py-3">
+                    Shop Now
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Button variant="outline" size="lg" className="px-8 py-3 border-2">
                   Browse Categories
                 </Button>
-              </Link>
+              </div>
+            </div>
+            <div className="lg:w-1/2">
+              <img
+                src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=400&fit=crop"
+                alt="Tech Setup"
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-background">
+      {/* Categories Section */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-blue-100 dark:bg-blue-900/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Truck className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Free Shipping</h3>
-              <p className="text-muted-foreground">Free shipping on all orders over $50</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-green-100 dark:bg-green-900/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">30-Day Returns</h3>
-              <p className="text-muted-foreground">Hassle-free returns within 30 days</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-purple-100 dark:bg-purple-900/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Headphones className="h-8 w-8 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">24/7 Support</h3>
-              <p className="text-muted-foreground">Get help whenever you need it</p>
-            </div>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Shop by Category</h2>
+            <Link to="/categories" className="text-orange hover:underline">
+              View All Categories
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {categories.map((category) => (
+              <Link key={category.id} to={`/category/${category.slug}`}>
+                <Card className="group hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4 text-center">
+                    <div className="aspect-square overflow-hidden rounded-lg mb-3">
+                      <img
+                        src={category.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=200'}
+                        alt={category.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    <h3 className="font-medium text-sm text-gray-900">{category.name}</h3>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Featured Products</h2>
-            <p className="text-muted-foreground">Check out our most popular tech accessories</p>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Featured Products</h2>
+            <Link to="/products" className="text-orange hover:underline">
+              View All Products
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => (
               <Card key={product.id} className="group hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
-                  <div className="aspect-square overflow-hidden rounded-t-lg">
+                  <div className="aspect-square overflow-hidden">
                     <img
                       src={product.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400'}
                       alt={product.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <div className="p-6">
-                    <h3 className="font-semibold mb-2">{product.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.title}</h3>
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold">${product.price}</span>
+                        <span className="text-lg font-bold text-gray-900">${product.price}</span>
                         {product.compare_price && (
-                          <span className="text-sm text-muted-foreground line-through">
+                          <span className="text-sm text-gray-500 line-through">
                             ${product.compare_price}
                           </span>
                         )}
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() => addToCart(product.id)}
-                        className="flex items-center space-x-1"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        <span>Add</span>
-                      </Button>
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
                     </div>
+                    <Button
+                      onClick={() => handleAddToCart(product.id)}
+                      className="w-full bg-orange hover:bg-orange text-white"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Add to Cart
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-          <div className="text-center mt-12">
-            <Link to="/products">
-              <Button variant="outline" size="lg">
-                View All Products
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-16 bg-background">
+      {/* Features */}
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Shop by Category</h2>
-            <p className="text-muted-foreground">Find exactly what you need for your setup</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <Link key={category.id} to={`/category/${category.slug}`}>
-                <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-0">
-                    <div className="aspect-square overflow-hidden rounded-t-lg">
-                      <img
-                        src={category.image_url || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300'}
-                        alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <div className="p-4 text-center">
-                      <h3 className="font-semibold">{category.name}</h3>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">What Our Customers Say</h2>
-            <p className="text-muted-foreground">Join thousands of satisfied customers</p>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Johnson",
-                rating: 5,
-                text: "Amazing quality products and super fast delivery. The gaming keyboard I bought exceeded my expectations!"
-              },
-              {
-                name: "Mike Chen",
-                rating: 5,
-                text: "Great customer service and competitive prices. My go-to store for all computer accessories."
-              },
-              {
-                name: "Emily Davis",
-                rating: 5,
-                text: "Love the variety and quality. The laptop stand I purchased has improved my work setup significantly."
-              }
-            ].map((testimonial, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">"{testimonial.text}"</p>
-                  <p className="font-semibold">{testimonial.name}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="text-center">
+              <div className="bg-orange-light rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Truck className="h-8 w-8 text-orange" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Free Shipping</h3>
+              <p className="text-gray-600">Free shipping on all orders over $50</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-light rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-orange" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Secure Payment</h3>
+              <p className="text-gray-600">100% secure payment processing</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-light rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Headphones className="h-8 w-8 text-orange" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">24/7 Support</h3>
+              <p className="text-gray-600">Round-the-clock customer support</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-16 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-            <p className="text-blue-100 mb-8">
-              Subscribe to our newsletter for the latest products, deals, and tech tips
+            <p className="text-gray-300 mb-8">
+              Get the latest deals and product updates delivered to your inbox
             </p>
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <Input
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
                 type="email"
                 placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/70"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900"
               />
-              <Button type="submit" variant="secondary">
+              <Button className="bg-orange hover:bg-orange text-white px-6 py-3">
                 Subscribe
               </Button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">About TechGenius</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              We're passionate about providing high-quality computer and printer accessories 
-              to help you build the perfect tech setup. With over 5 years of experience, 
-              we've served thousands of customers worldwide with premium products and 
-              exceptional service.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">50K+</div>
-                <p className="text-muted-foreground">Happy Customers</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">1000+</div>
-                <p className="text-muted-foreground">Products</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">99%</div>
-                <p className="text-muted-foreground">Satisfaction Rate</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
-              <p className="text-muted-foreground">Find answers to common questions</p>
-            </div>
-            <div className="space-y-6">
-              {[
-                {
-                  question: "What is your return policy?",
-                  answer: "We offer a 30-day return policy for all unused items in original packaging."
-                },
-                {
-                  question: "Do you offer international shipping?",
-                  answer: "Yes, we ship worldwide. Shipping costs and delivery times vary by location."
-                },
-                {
-                  question: "Are your products covered by warranty?",
-                  answer: "Most of our products come with manufacturer warranty. Check individual product pages for details."
-                },
-                {
-                  question: "How can I track my order?",
-                  answer: "Once your order ships, you'll receive a tracking number via email to monitor your package."
-                }
-              ].map((faq, index) => (
-                <Card key={index}>
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold mb-2">{faq.question}</h3>
-                    <p className="text-muted-foreground">{faq.answer}</p>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
           </div>
         </div>
