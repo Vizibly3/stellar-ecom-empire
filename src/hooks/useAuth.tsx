@@ -74,11 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // If no profile exists, create one
+      const roleToAssign: "admin" | "customer" = user.email === 'admin@bytecart.site' ? 'admin' : 'customer';
+      
       const newProfile = {
         id: user.id,
         email: user.email!,
         full_name: user.user_metadata?.full_name || '',
-        role: user.email === 'admin@bytecart.site' ? 'admin' : 'customer'
+        role: roleToAssign
       };
 
       const { data: createdProfile, error } = await supabase

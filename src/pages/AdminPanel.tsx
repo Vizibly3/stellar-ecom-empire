@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +11,8 @@ import { Loader2, Users, Package, ShoppingCart, Settings, Plus, Edit, Trash2 } f
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type OrderStatus = "pending" | "shipped" | "delivered" | "cancelled";
 
 export default function AdminPanel() {
   const { user, profile, isAdmin, loading } = useAuth();
@@ -234,7 +235,7 @@ export default function AdminPanel() {
     }
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+  const handleUpdateOrderStatus = async (orderId: string, status: OrderStatus) => {
     try {
       const { error } = await supabase
         .from('orders')
@@ -600,7 +601,7 @@ export default function AdminPanel() {
                           <p className="font-medium">${order.total_amount}</p>
                           <Select
                             value={order.status}
-                            onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}
+                            onValueChange={(value: OrderStatus) => handleUpdateOrderStatus(order.id, value)}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
