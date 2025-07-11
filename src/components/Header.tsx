@@ -98,6 +98,7 @@ export function Header() {
                     <button onClick={() => handleNavigation('/profile')}>
                       <Button variant="ghost" size="sm" className="btn-secondary">
                         <User className="h-5 w-5" />
+                        <span className="ml-1 hidden sm:inline">Profile</span>
                       </Button>
                     </button>
                     <Button variant="ghost" size="sm" onClick={handleSignOut} className="btn-secondary">
@@ -191,6 +192,14 @@ export function Header() {
                 >
                   Brands
                 </button>
+                {user && (
+                  <button
+                    onClick={() => handleNavigation('/profile')}
+                    className="text-gray-700 hover:text-primary text-left"
+                  >
+                    My Profile
+                  </button>
+                )}
                 {isAdmin && (
                   <button
                     onClick={() => handleNavigation('/admin')}

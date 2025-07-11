@@ -29,9 +29,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check if user is admin
-        const adminCheck = session?.user?.email === 'admin@bytecart.site';
-        setIsAdmin(adminCheck);
+        // Check if user is admin - SIMPLIFIED LOGIC
+        if (session?.user?.email === 'admin@bytecart.site') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
         
         setLoading(false);
       }
@@ -43,9 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Check if user is admin
-      const adminCheck = session?.user?.email === 'admin@bytecart.site';
-      setIsAdmin(adminCheck);
+      // Check if user is admin - SIMPLIFIED LOGIC
+      if (session?.user?.email === 'admin@bytecart.site') {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
       
       setLoading(false);
     });
@@ -54,51 +60,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    // Check for hardcoded admin credentials
+    console.log('Attempting login with:', email);
+    
+    // HARDCODED ADMIN CHECK - DIRECT APPROACH
     if (email === 'admin@bytecart.site' && password === 'admin123') {
-      try {
-        // First try to sign in normally
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) {
-          // If normal signin fails, try to sign up the admin user
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                full_name: 'Admin User',
-              },
-            },
-          });
-          
-          if (signUpError) {
-            return { error: signUpError };
-          }
-          
-          // Now try to sign in again
-          const { error: retryError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-          
-          return { error: retryError };
-        }
-        
+      console.log('Admin credentials detected - proceeding with signup/signin');
+      
+      // Try to sign up first (in case admin doesn't exist)
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: 'Admin User',
+          },
+        },
+      });
+      
+      // Whether signup succeeded or failed, try to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (!signInError) {
+        console.log('Admin login successful');
+        setIsAdmin(true);
         return { error: null };
-      } catch (error) {
-        return { error };
+      } else {
+        console.error('Admin login failed:', signInError);
+        return { error: signInError };
       }
     }
     
-    // Normal login process
+    // Normal login process for other users
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    console.log('Normal login result:', error ? 'failed' : 'success');
     return { error };
   };
 
@@ -130,6 +131,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (profileError) {
           console.error('Profile creation error:', profileError);
+        } else {
+          console.log('Profile created successfully');
         }
       } catch (profileError) {
         console.error('Profile creation failed:', profileError);
