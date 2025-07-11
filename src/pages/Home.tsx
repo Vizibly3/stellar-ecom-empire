@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Truck, Shield, Headphones, Flame, TrendingUp, Crown, Zap } from 'lucide-react';
@@ -24,6 +25,8 @@ export default function Home() {
   const [topDeals, setTopDeals] = useState<Product[]>([]);
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Move useCart hook to the top level, after other hooks
   const { addToCart } = useCart();
 
   useEffect(() => {
