@@ -7,9 +7,6 @@ import { useCart } from '@/hooks/useCart';
 import { toast } from 'sonner';
 import { 
   ShoppingCart, 
-  Heart, 
-  Share2, 
-  Star, 
   Truck, 
   Shield, 
   RefreshCw, 
@@ -21,8 +18,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
+import { ProductCard } from '@/components/ProductCard';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -72,6 +69,36 @@ export default function ProductDetail() {
     enabled: !!product?.category_id
   });
 
+  const { data: topDeals = [] } = useQuery({
+    queryKey: ['top-deals-product-detail'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .not('compare_price', 'is', null)
+        .eq('is_active', true)
+        .limit(4);
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: featuredProducts = [] } = useQuery({
+    queryKey: ['featured-products-product-detail'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('featured', true)
+        .eq('is_active', true)
+        .limit(4);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const handleAddToCart = async () => {
     if (!product) return;
     
@@ -103,6 +130,11 @@ export default function ProductDetail() {
     }
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    window.scrollTo(0, 0);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -117,7 +149,7 @@ export default function ProductDetail() {
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
           <p className="text-gray-600 mb-4">The product you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/products')}>
+          <Button onClick={() => handleNavigation('/products')}>
             Browse All Products
           </Button>
         </div>
@@ -139,17 +171,17 @@ export default function ProductDetail() {
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <button onClick={() => navigate('/')} className="hover:text-primary">
+            <button onClick={() => handleNavigation('/')} className="hover:text-primary">
               Home
             </button>
             <span>/</span>
-            <button onClick={() => navigate('/products')} className="hover:text-primary">
+            <button onClick={() => handleNavigation('/products')} className="hover:text-primary">
               Products
             </button>
             {product.categories && (
               <>
                 <span>/</span>
-                <button onClick={() => navigate(`/categories/${product.categories.slug}`)} className="hover:text-primary">
+                <button onClick={() => handleNavigation(`/categories/${product.categories.slug}`)} className="hover:text-primary">
                   {product.categories.name}
                 </button>
               </>
@@ -214,16 +246,6 @@ export default function ProductDetail() {
                   {product.categories.name}
                 </Badge>
               )}
-              
-              {/* Rating */}
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600">(4.8) 124 reviews</span>
-              </div>
 
               {/* Price */}
               <div className="flex items-center space-x-4 mb-6">
@@ -293,17 +315,6 @@ export default function ProductDetail() {
                 <ShoppingCart className="h-5 w-5 mr-2" />
                 {isAddingToCart ? 'Adding...' : 'Add to Cart'}
               </Button>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <Heart className="h-4 w-4" />
-                  <span>Wishlist</span>
-                </Button>
-                <Button variant="outline" className="flex items-center space-x-2">
-                  <Share2 className="h-4 w-4" />
-                  <span>Share</span>
-                </Button>
-              </div>
             </div>
 
             {/* Features */}
@@ -344,31 +355,31 @@ export default function ProductDetail() {
             <h2 className="text-2xl font-semibold mb-8">Related Products</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <Card key={relatedProduct.id} className="group cursor-pointer hover:shadow-lg transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden mb-4">
-                      <img
-                        src={relatedProduct.image_url || '/placeholder.svg'}
-                        alt={relatedProduct.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        onClick={() => navigate(`/products/${relatedProduct.slug}`)}
-                      />
-                    </div>
-                    <h3 className="font-semibold text-sm mb-2 line-clamp-2">
-                      {relatedProduct.title}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold">${relatedProduct.price.toFixed(2)}</span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => navigate(`/products/${relatedProduct.slug}`)}
-                      >
-                        View
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Top Deals Section */}
+        {topDeals.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-semibold mb-8">Top Deals</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {topDeals.map((deal) => (
+                <ProductCard key={deal.id} product={deal} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Featured Products */}
+        {featuredProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-semibold mb-8">Featured Products</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {featuredProducts.map((featured) => (
+                <ProductCard key={featured.id} product={featured} />
               ))}
             </div>
           </div>

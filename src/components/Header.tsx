@@ -75,17 +75,6 @@ export function Header() {
 
             {/* Right Section */}
             <div className="flex items-center space-x-4">
-              {/* Call Now Button */}
-              <Button
-                onClick={handleCallNow}
-                variant="ghost"
-                size="sm"
-                className="hidden sm:flex items-center space-x-2 bg-green-500 text-white hover:bg-green-600"
-              >
-                <Phone className="h-4 w-4" />
-                <span>Call Now</span>
-              </Button>
-
               {/* Cart */}
               <button onClick={() => handleNavigation('/cart')}>
                 <Button variant="ghost" size="sm" className="relative btn-secondary">
@@ -132,6 +121,17 @@ export function Header() {
                   </div>
                 )}
               </div>
+
+              {/* Call Now Button */}
+              <Button
+                onClick={handleCallNow}
+                variant="ghost"
+                size="sm"
+                className="hidden sm:flex items-center space-x-2 bg-green-500 text-white hover:bg-green-600"
+              >
+                <Phone className="h-4 w-4" />
+                <span>Call Now</span>
+              </Button>
 
               {/* Mobile Menu Button */}
               <Button

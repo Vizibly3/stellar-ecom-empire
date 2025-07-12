@@ -20,7 +20,7 @@ export function TestimonialsSection() {
               </p>
               <div className="flex items-center">
                 <img 
-                  src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face" 
+                  src="https://images.unsplash.com/photo-1494790108755-2616b612b494?w=40&h=40&fit=crop&crop=face&auto=format&q=80" 
                   alt="Sarah Johnson" 
                   className="w-10 h-10 rounded-full mr-3"
                 />
@@ -43,7 +43,7 @@ export function TestimonialsSection() {
               </p>
               <div className="flex items-center">
                 <img 
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" 
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face&auto=format&q=80" 
                   alt="Mike Chen" 
                   className="w-10 h-10 rounded-full mr-3"
                 />
@@ -66,7 +66,7 @@ export function TestimonialsSection() {
               </p>
               <div className="flex items-center">
                 <img 
-                  src="https://images.unsplash.com/photo-1494790108755-2616b612b494?w=40&h=40&fit=crop&crop=face" 
+                  src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face&auto=format&q=80" 
                   alt="Emily Davis" 
                   className="w-10 h-10 rounded-full mr-3"
                 />
