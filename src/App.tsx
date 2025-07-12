@@ -9,6 +9,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Home from '@/pages/Home';
 import Products from '@/pages/Products';
+import ProductDetail from '@/pages/ProductDetail';
 import Categories from '@/pages/Categories';
 import CategoryPage from '@/pages/CategoryPage';
 import Deals from '@/pages/Deals';
@@ -40,6 +41,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/products" element={<Products />} />
+                    <Route path="/products/:slug" element={<ProductDetail />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/categories/:slug" element={<CategoryPage />} />
                     <Route path="/deals" element={<Deals />} />

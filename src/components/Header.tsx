@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X, Shield } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Shield, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -30,6 +30,10 @@ export function Header() {
     navigate(path);
     window.scrollTo(0, 0);
     setIsMenuOpen(false);
+  };
+
+  const handleCallNow = () => {
+    window.open(`tel:${siteConfig.phone}`, '_self');
   };
 
   return (
@@ -71,6 +75,17 @@ export function Header() {
 
             {/* Right Section */}
             <div className="flex items-center space-x-4">
+              {/* Call Now Button */}
+              <Button
+                onClick={handleCallNow}
+                variant="ghost"
+                size="sm"
+                className="hidden sm:flex items-center space-x-2 bg-green-500 text-white hover:bg-green-600"
+              >
+                <Phone className="h-4 w-4" />
+                <span>Call Now</span>
+              </Button>
+
               {/* Cart */}
               <button onClick={() => handleNavigation('/cart')}>
                 <Button variant="ghost" size="sm" className="relative btn-secondary">
@@ -161,6 +176,18 @@ export function Header() {
               <div className="mb-4">
                 <SearchBar className="w-full" />
               </div>
+              
+              {/* Mobile Call Button */}
+              <div className="mb-4">
+                <Button
+                  onClick={handleCallNow}
+                  className="w-full bg-green-500 text-white hover:bg-green-600"
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Now
+                </Button>
+              </div>
+
               <nav className="flex flex-col space-y-4">
                 <button
                   onClick={() => handleNavigation('/')}
