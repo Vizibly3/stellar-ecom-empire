@@ -19,7 +19,11 @@ export function TestimonialsSection() {
                 "Excellent quality products and fast shipping. The mechanical keyboard I ordered works perfectly!"
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                <img 
+                  src="https://images.unsplash.com/photo-1494790108755-2616b612b494?w=40&h=40&fit=crop&crop=face" 
+                  alt="Sarah Johnson" 
+                  className="w-10 h-10 rounded-full mr-3"
+                />
                 <div>
                   <p className="font-semibold">Sarah Johnson</p>
                   <p className="text-sm text-gray-500">Verified Buyer</p>
@@ -38,7 +42,11 @@ export function TestimonialsSection() {
                 "Great customer service and competitive prices. Will definitely shop here again!"
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                <img 
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" 
+                  alt="Mike Chen" 
+                  className="w-10 h-10 rounded-full mr-3"
+                />
                 <div>
                   <p className="font-semibold">Mike Chen</p>
                   <p className="text-sm text-gray-500">Verified Buyer</p>
@@ -57,7 +65,11 @@ export function TestimonialsSection() {
                 "Best place to buy tech accessories online. Product quality is outstanding!"
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                <img 
+                  src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face" 
+                  alt="Emily Davis" 
+                  className="w-10 h-10 rounded-full mr-3"
+                />
                 <div>
                   <p className="font-semibold">Emily Davis</p>
                   <p className="text-sm text-gray-500">Verified Buyer</p>

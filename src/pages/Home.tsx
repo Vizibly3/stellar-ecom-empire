@@ -26,7 +26,6 @@ export default function Home() {
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Move useCart hook to the top level, after other hooks
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -35,7 +34,7 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      // Fetch featured products
+      // Fetch featured products (only active)
       const { data: products, error: productsError } = await supabase
         .from('products')
         .select('*')
@@ -48,7 +47,7 @@ export default function Home() {
         toast.error('Failed to load featured products');
       }
       
-      // Fetch categories
+      // Fetch categories (only active)
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
@@ -60,7 +59,7 @@ export default function Home() {
         toast.error('Failed to load categories');
       }
       
-      // Fetch top deals (products with compare_price)
+      // Fetch top deals (products with compare_price, only active)
       const { data: dealsData, error: dealsError } = await supabase
         .from('products')
         .select('*')
@@ -73,7 +72,7 @@ export default function Home() {
         toast.error('Failed to load deals');
       }
 
-      // Fetch categories with their products for trending sections
+      // Fetch categories with their products for trending sections (only active)
       const { data: categoryProducts, error: categoryProductsError } = await supabase
         .from('categories')
         .select(`
@@ -91,21 +90,19 @@ export default function Home() {
       if (products) setFeaturedProducts(products);
       if (categoriesData) setCategories(categoriesData);
       if (dealsData) setTopDeals(dealsData);
-      if (categoryProducts) setCategoriesWithProducts(categoryProducts as CategoryWithProducts[]);
+      if (categoryProducts) {
+        // Filter out inactive products from each category
+        const filteredCategoryProducts = categoryProducts.map(category => ({
+          ...category,
+          products: category.products?.filter(product => product.is_active) || []
+        }));
+        setCategoriesWithProducts(filteredCategoryProducts as CategoryWithProducts[]);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load page data');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleAddToCart = async (productId: string, productTitle: string) => {
-    try {
-      await addToCart(productId);
-      toast.success(`${productTitle} added to cart!`);
-    } catch (error) {
-      toast.error('Failed to add item to cart. Please try again.');
     }
   };
 
@@ -153,8 +150,8 @@ export default function Home() {
                 View All Deals
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {topDeals.map((product) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {topDeals.slice(0, 4).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -172,8 +169,8 @@ export default function Home() {
                 View All Products
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {featuredProducts.map((product) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.slice(0, 4).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -197,12 +194,12 @@ export default function Home() {
                     {index === 2 && `Price Crash on ${category.name}`}
                   </h2>
                 </div>
-                <Link to={`/category/${category.slug}`} className="text-primary hover:underline">
+                <Link to={`/categories/${category.slug}`} className="text-primary hover:underline">
                   View All
                 </Link>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {category.products.slice(0, 6).map((product) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {category.products.slice(0, 4).map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
