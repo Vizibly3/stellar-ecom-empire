@@ -1,14 +1,21 @@
-
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X, Shield, Phone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useCart } from '@/hooks/useCart';
-import { siteConfig } from '@/config/site';
-import { AuthModal } from './AuthModal';
-import { SearchBar } from './SearchBar';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ShoppingCart,
+  User,
+  Search,
+  Menu,
+  X,
+  Shield,
+  Phone,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { siteConfig } from "@/config/site";
+import { AuthModal } from "./AuthModal";
+import { SearchBar } from "./SearchBar";
+import { toast } from "sonner";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,9 +27,9 @@ export function Header() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast.success('Signed out successfully');
+      toast.success("Signed out successfully");
     } catch (error) {
-      toast.error('Failed to sign out');
+      toast.error("Failed to sign out");
     }
   };
 
@@ -33,7 +40,7 @@ export function Header() {
   };
 
   const handleCallNow = () => {
-    window.open(`tel:${siteConfig.phone}`, '_self');
+    window.open(`tel:${siteConfig.phone}`, "_self");
   };
 
   return (
@@ -47,9 +54,13 @@ export function Header() {
                 Free shipping on orders over $50
               </div>
               <div className="flex items-center space-x-6 text-gray-600">
-                <span>Help & Support</span>
-                <span>|</span>
-                <span>Track Your Order</span>
+                <a
+                  href={`tel:${siteConfig.phone}`}
+                  className="flex items-center space-x-2 text-green-600 font-semibold hover:underline"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>Call Now: {siteConfig.phone}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -59,7 +70,10 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <button onClick={() => handleNavigation('/')} className="flex items-center space-x-2">
+            <button
+              onClick={() => handleNavigation("/")}
+              className="flex items-center space-x-2"
+            >
               <div className="h-8 w-8 bg-black rounded flex items-center justify-center">
                 <span className="text-white font-bold text-sm">BC</span>
               </div>
@@ -76,8 +90,12 @@ export function Header() {
             {/* Right Section */}
             <div className="flex items-center space-x-4">
               {/* Cart */}
-              <button onClick={() => handleNavigation('/cart')}>
-                <Button variant="ghost" size="sm" className="relative btn-secondary">
+              <button onClick={() => handleNavigation("/cart")}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative btn-secondary"
+                >
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
                     <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -92,27 +110,40 @@ export function Header() {
                 {user ? (
                   <div className="flex items-center space-x-2">
                     {isAdmin && (
-                      <button onClick={() => handleNavigation('/admin')}>
-                        <Button variant="ghost" size="sm" className="btn-secondary">
+                      <button onClick={() => handleNavigation("/admin")}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="btn-secondary"
+                        >
                           <Shield className="h-5 w-5" />
                           <span className="ml-1 hidden sm:inline">Admin</span>
                         </Button>
                       </button>
                     )}
-                    <button onClick={() => handleNavigation('/profile')}>
-                      <Button variant="ghost" size="sm" className="btn-secondary">
+                    <button onClick={() => handleNavigation("/profile")}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="btn-secondary"
+                      >
                         <User className="h-5 w-5" />
                         <span className="ml-1 hidden sm:inline">Profile</span>
                       </Button>
                     </button>
-                    <Button variant="ghost" size="sm" onClick={handleSignOut} className="btn-secondary">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSignOut}
+                      className="btn-secondary"
+                    >
                       Sign Out
                     </Button>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="btn-primary"
                       onClick={() => setIsAuthModalOpen(true)}
                     >
@@ -140,32 +171,57 @@ export function Header() {
                 className="md:hidden btn-secondary"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8 py-3 border-t">
-            <button onClick={() => handleNavigation('/')} className="text-gray-700 hover:text-primary font-medium">
+            <button
+              onClick={() => handleNavigation("/")}
+              className="text-gray-700 hover:text-primary font-medium"
+            >
               Home
             </button>
-            <button onClick={() => handleNavigation('/categories')} className="text-gray-700 hover:text-primary font-medium">
+            <button
+              onClick={() => handleNavigation("/categories")}
+              className="text-gray-700 hover:text-primary font-medium"
+            >
               All Categories
             </button>
-            <button onClick={() => handleNavigation('/products')} className="text-gray-700 hover:text-primary">
+            <button
+              onClick={() => handleNavigation("/products")}
+              className="text-gray-700 hover:text-primary"
+            >
               Products
             </button>
-            <button onClick={() => handleNavigation('/deals')} className="text-gray-700 hover:text-primary">
+            <button
+              onClick={() => handleNavigation("/deals")}
+              className="text-gray-700 hover:text-primary"
+            >
               Deals
             </button>
-            <button onClick={() => handleNavigation('/brands')} className="text-gray-700 hover:text-primary">
+            <button
+              onClick={() => handleNavigation("/brands")}
+              className="text-gray-700 hover:text-primary"
+            >
               Brands
             </button>
-            <button onClick={() => handleNavigation('/about')} className="text-gray-700 hover:text-primary">
+            <button
+              onClick={() => handleNavigation("/about")}
+              className="text-gray-700 hover:text-primary"
+            >
               About
             </button>
-            <button onClick={() => handleNavigation('/contact')} className="text-gray-700 hover:text-primary">
+            <button
+              onClick={() => handleNavigation("/contact")}
+              className="text-gray-700 hover:text-primary"
+            >
               Contact
             </button>
           </nav>
@@ -176,7 +232,7 @@ export function Header() {
               <div className="mb-4">
                 <SearchBar className="w-full" />
               </div>
-              
+
               {/* Mobile Call Button */}
               <div className="mb-4">
                 <Button
@@ -190,38 +246,38 @@ export function Header() {
 
               <nav className="flex flex-col space-y-4">
                 <button
-                  onClick={() => handleNavigation('/')}
+                  onClick={() => handleNavigation("/")}
                   className="text-gray-700 hover:text-primary text-left"
                 >
                   Home
                 </button>
                 <button
-                  onClick={() => handleNavigation('/categories')}
+                  onClick={() => handleNavigation("/categories")}
                   className="text-gray-700 hover:text-primary text-left"
                 >
                   All Categories
                 </button>
                 <button
-                  onClick={() => handleNavigation('/products')}
+                  onClick={() => handleNavigation("/products")}
                   className="text-gray-700 hover:text-primary text-left"
                 >
                   Products
                 </button>
                 <button
-                  onClick={() => handleNavigation('/deals')}
+                  onClick={() => handleNavigation("/deals")}
                   className="text-gray-700 hover:text-primary text-left"
                 >
                   Deals
                 </button>
                 <button
-                  onClick={() => handleNavigation('/brands')}
+                  onClick={() => handleNavigation("/brands")}
                   className="text-gray-700 hover:text-primary text-left"
                 >
                   Brands
                 </button>
                 {user && (
                   <button
-                    onClick={() => handleNavigation('/profile')}
+                    onClick={() => handleNavigation("/profile")}
                     className="text-gray-700 hover:text-primary text-left"
                   >
                     My Profile
@@ -229,7 +285,7 @@ export function Header() {
                 )}
                 {isAdmin && (
                   <button
-                    onClick={() => handleNavigation('/admin')}
+                    onClick={() => handleNavigation("/admin")}
                     className="text-gray-700 hover:text-primary text-left"
                   >
                     Admin Panel
@@ -241,9 +297,9 @@ export function Header() {
         </div>
       </header>
 
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );
