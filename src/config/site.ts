@@ -1,9 +1,9 @@
 
 export const siteConfig = {
-  name: "ByteCart",
+  name: "ByteKart",
   description: "Your one-stop shop for computer and printer accessories",
-  url: "https://bytecart.site",
-  email: "support@bytecart.site",
+  url: "https://bytekart.shop",
+  email: "support@bytekart.shop",
   phone: "+1 (888) 365-7610",
   address: "123 Tech Street, Silicon Valley, CA 94000",
   social: {
