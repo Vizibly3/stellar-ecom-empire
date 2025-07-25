@@ -72,7 +72,7 @@ export function useSiteSettings() {
 
     // Set up real-time subscription to listen for changes
     const channel = supabase
-      .channel('site-settings-changes')
+      .channel('site-settings-realtime')
       .on(
         'postgres_changes',
         {
@@ -81,14 +81,19 @@ export function useSiteSettings() {
           table: 'site_settings'
         },
         (payload) => {
-          console.log('Site settings updated:', payload);
-          setSettings(payload.new as SiteSettings);
+          console.log('Site settings updated via realtime:', payload);
+          if (payload.new) {
+            setSettings(payload.new as SiteSettings);
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+      });
 
     // Cleanup subscription on unmount
     return () => {
+      console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, []);
