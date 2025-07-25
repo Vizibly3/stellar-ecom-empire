@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Users, Package, ShoppingCart, DollarSign, Plus, Edit, Trash2, Eye, BarChart3, TrendingUp, Activity } from 'lucide-react';
+import { Users, Package, ShoppingCart, DollarSign, Plus, Edit, Trash2, Eye, BarChart3, TrendingUp, Activity, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Table,
@@ -92,6 +93,7 @@ interface Order {
 
 export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
+  const { settings, loading: settingsLoading, updateSettings } = useSiteSettings();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -435,6 +437,25 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSiteSettingsSubmit = async (formData: FormData) => {
+    const settingsData = {
+      site_name: formData.get('site_name') as string,
+      site_description: formData.get('site_description') as string,
+      site_url: formData.get('site_url') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      address: formData.get('address') as string,
+      business_hours: formData.get('business_hours') as string,
+      shipping_info: formData.get('shipping_info') as string,
+      returns_policy: formData.get('returns_policy') as string,
+      twitter_handle: formData.get('twitter_handle') as string,
+      facebook_handle: formData.get('facebook_handle') as string,
+      instagram_handle: formData.get('instagram_handle') as string,
+    };
+
+    await updateSettings(settingsData);
+  };
+
   if (!isAdmin) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -446,7 +467,7 @@ export default function AdminPanel() {
     );
   }
 
-  if (loading) {
+  if (loading || settingsLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -523,12 +544,13 @@ export default function AdminPanel() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="analytics" className="space-y-6">
@@ -1075,6 +1097,156 @@ export default function AdminPanel() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Site Settings
+              </CardTitle>
+              <CardDescription>
+                Manage your website configuration and branding
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target as HTMLFormElement);
+                handleSiteSettingsSubmit(formData);
+              }}>
+                <div className="grid gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="site_name">Site Name</Label>
+                      <Input
+                        id="site_name"
+                        name="site_name"
+                        defaultValue={settings?.site_name || ''}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="site_url">Site URL</Label>
+                      <Input
+                        id="site_url"
+                        name="site_url"
+                        type="url"
+                        defaultValue={settings?.site_url || ''}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="site_description">Site Description</Label>
+                    <Textarea
+                      id="site_description"
+                      name="site_description"
+                      defaultValue={settings?.site_description || ''}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        defaultValue={settings?.email || ''}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        defaultValue={settings?.phone || ''}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Textarea
+                      id="address"
+                      name="address"
+                      defaultValue={settings?.address || ''}
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="business_hours">Business Hours</Label>
+                      <Input
+                        id="business_hours"
+                        name="business_hours"
+                        defaultValue={settings?.business_hours || ''}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="shipping_info">Shipping Info</Label>
+                      <Input
+                        id="shipping_info"
+                        name="shipping_info"
+                        defaultValue={settings?.shipping_info || ''}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="returns_policy">Returns Policy</Label>
+                      <Input
+                        id="returns_policy"
+                        name="returns_policy"
+                        defaultValue={settings?.returns_policy || ''}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="twitter_handle">Twitter Handle</Label>
+                      <Input
+                        id="twitter_handle"
+                        name="twitter_handle"
+                        defaultValue={settings?.twitter_handle || ''}
+                        placeholder="@username"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="facebook_handle">Facebook Handle</Label>
+                      <Input
+                        id="facebook_handle"
+                        name="facebook_handle"
+                        defaultValue={settings?.facebook_handle || ''}
+                        placeholder="username"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram_handle">Instagram Handle</Label>
+                      <Input
+                        id="instagram_handle"
+                        name="instagram_handle"
+                        defaultValue={settings?.instagram_handle || ''}
+                        placeholder="username"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button type="submit" className="px-8">
+                      Update Settings
+                    </Button>
+                  </div>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>

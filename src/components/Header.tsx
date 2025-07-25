@@ -1,306 +1,212 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  ShoppingCart,
-  User,
-  Search,
-  Menu,
-  X,
-  Shield,
-  Phone,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { useCart } from "@/hooks/useCart";
-import { siteConfig } from "@/config/site";
-import { AuthModal } from "./AuthModal";
-import { SearchBar } from "./SearchBar";
-import { toast } from "sonner";
 
-export function Header() {
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Search, ShoppingCart, User, Menu, X, Phone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
+import AuthModal from './AuthModal';
+
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, signOut, isAdmin } = useAuth();
-  const { totalItems } = useCart();
-  const navigate = useNavigate();
+  const { getTotalItems } = useCart();
+  const { user, signOut } = useAuth();
+  const { settings } = useSiteSettings();
+  const location = useLocation();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast.success("Signed out successfully");
-    } catch (error) {
-      toast.error("Failed to sign out");
+  const handleCallNow = () => {
+    if (settings?.phone) {
+      window.location.href = `tel:${settings.phone}`;
     }
   };
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    window.scrollTo(0, 0);
-    setIsMenuOpen(false);
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  const handleCallNow = () => {
-    window.open(`tel:${siteConfig.phone}`, "_self");
-  };
+  const totalItems = getTotalItems();
+
+  const navigationLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Products', path: '/products' },
+    { name: 'Categories', path: '/categories' },
+    { name: 'Brands', path: '/brands' },
+    { name: 'Deals', path: '/deals' },
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
+  ];
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <>
-      <header className="border-b bg-white sticky top-0 z-50">
-        {/* Top bar */}
-        <div className="bg-gray-50 text-sm py-2">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center">
-              <div className="text-gray-600">
-                Free shipping on orders over $50
-              </div>
-              <div className="flex items-center space-x-6 text-gray-600">
-                <a
-                  href={`tel:${siteConfig.phone}`}
-                  className="flex items-center space-x-2 text-green-600 font-semibold hover:underline"
-                >
-                  <Phone className="h-4 w-4" />
-                  <span>Call Now: {siteConfig.phone}</span>
-                </a>
-              </div>
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
+              <span className="text-white font-bold text-sm">BK</span>
             </div>
+            <span className="text-xl font-bold text-gray-900">
+              {settings?.site_name || 'ByteKart'}
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`text-sm font-medium transition-colors hover:text-blue-600 ${
+                  isActive(link.path) ? 'text-blue-600' : 'text-gray-700'
+                }`}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-4">
+            {/* Search */}
+            <Button variant="ghost" size="icon" className="hidden md:flex">
+              <Search className="h-5 w-5" />
+            </Button>
+
+            {/* Cart */}
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            {/* User Account */}
+            {user ? (
+              <div className="hidden md:flex items-center space-x-2">
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="hidden md:flex"
+              >
+                Sign In
+              </Button>
+            )}
+
+            {/* Call Now Button */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleCallNow}
+              className="hidden md:flex items-center space-x-2"
+            >
+              <Phone className="h-4 w-4" />
+              <span>Call Now</span>
+            </Button>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </div>
 
-        {/* Main header */}
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
-            <button
-              onClick={() => handleNavigation("/")}
-              className="flex items-center space-x-2"
-            >
-              <div className="h-8 w-8 bg-black rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">BC</span>
-              </div>
-              <span className="text-xl font-bold text-black">
-                {siteConfig.name}
-              </span>
-            </button>
-
-            {/* Search Bar - Desktop */}
-            <div className="hidden md:flex items-center flex-1 max-w-2xl mx-8">
-              <SearchBar className="w-full" />
-            </div>
-
-            {/* Right Section */}
-            <div className="flex items-center space-x-4">
-              {/* Cart */}
-              <button onClick={() => handleNavigation("/cart")}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative btn-secondary"
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t">
+            <nav className="flex flex-col space-y-4">
+              {navigationLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`text-sm font-medium transition-colors hover:text-blue-600 ${
+                    isActive(link.path) ? 'text-blue-600' : 'text-gray-700'
+                  }`}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 >
-                  <ShoppingCart className="h-5 w-5" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  )}
+                  {link.name}
+                </Link>
+              ))}
+              
+              {/* Mobile Actions */}
+              <div className="flex flex-col space-y-2 pt-4 border-t">
+                <Button variant="ghost" size="sm" className="justify-start">
+                  <Search className="h-4 w-4 mr-2" />
+                  Search
                 </Button>
-              </button>
-
-              {/* User Menu */}
-              <div className="flex items-center space-x-2">
+                
                 {user ? (
-                  <div className="flex items-center space-x-2">
-                    {isAdmin && (
-                      <button onClick={() => handleNavigation("/admin")}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="btn-secondary"
-                        >
-                          <Shield className="h-5 w-5" />
-                          <span className="ml-1 hidden sm:inline">Admin</span>
-                        </Button>
-                      </button>
-                    )}
-                    <button onClick={() => handleNavigation("/profile")}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="btn-secondary"
-                      >
-                        <User className="h-5 w-5" />
-                        <span className="ml-1 hidden sm:inline">Profile</span>
+                  <>
+                    <Link to="/profile">
+                      <Button variant="ghost" size="sm" className="justify-start w-full">
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
                       </Button>
-                    </button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSignOut}
-                      className="btn-secondary"
-                    >
+                    </Link>
+                    <Button variant="ghost" size="sm" onClick={handleSignOut} className="justify-start">
                       Sign Out
                     </Button>
-                  </div>
+                  </>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      size="sm"
-                      className="btn-primary"
-                      onClick={() => setIsAuthModalOpen(true)}
-                    >
-                      Sign Up
-                    </Button>
-                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="justify-start"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
                 )}
-              </div>
-
-              {/* Call Now Button */}
-              <Button
-                onClick={handleCallNow}
-                variant="ghost"
-                size="sm"
-                className="hidden sm:flex items-center space-x-2 bg-green-500 text-white hover:bg-green-600"
-              >
-                <Phone className="h-4 w-4" />
-                <span>Call Now</span>
-              </Button>
-
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="md:hidden btn-secondary"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8 py-3 border-t">
-            <button
-              onClick={() => handleNavigation("/")}
-              className="text-gray-700 hover:text-primary font-medium"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => handleNavigation("/categories")}
-              className="text-gray-700 hover:text-primary font-medium"
-            >
-              All Categories
-            </button>
-            <button
-              onClick={() => handleNavigation("/products")}
-              className="text-gray-700 hover:text-primary"
-            >
-              Products
-            </button>
-            <button
-              onClick={() => handleNavigation("/deals")}
-              className="text-gray-700 hover:text-primary"
-            >
-              Deals
-            </button>
-            <button
-              onClick={() => handleNavigation("/brands")}
-              className="text-gray-700 hover:text-primary"
-            >
-              Brands
-            </button>
-            <button
-              onClick={() => handleNavigation("/about")}
-              className="text-gray-700 hover:text-primary"
-            >
-              About
-            </button>
-            <button
-              onClick={() => handleNavigation("/contact")}
-              className="text-gray-700 hover:text-primary"
-            >
-              Contact
-            </button>
-          </nav>
-
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="md:hidden border-t py-4">
-              <div className="mb-4">
-                <SearchBar className="w-full" />
-              </div>
-
-              {/* Mobile Call Button */}
-              <div className="mb-4">
-                <Button
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
                   onClick={handleCallNow}
-                  className="w-full bg-green-500 text-white hover:bg-green-600"
+                  className="justify-start"
                 >
                   <Phone className="h-4 w-4 mr-2" />
                   Call Now
                 </Button>
               </div>
+            </nav>
+          </div>
+        )}
+      </div>
 
-              <nav className="flex flex-col space-y-4">
-                <button
-                  onClick={() => handleNavigation("/")}
-                  className="text-gray-700 hover:text-primary text-left"
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => handleNavigation("/categories")}
-                  className="text-gray-700 hover:text-primary text-left"
-                >
-                  All Categories
-                </button>
-                <button
-                  onClick={() => handleNavigation("/products")}
-                  className="text-gray-700 hover:text-primary text-left"
-                >
-                  Products
-                </button>
-                <button
-                  onClick={() => handleNavigation("/deals")}
-                  className="text-gray-700 hover:text-primary text-left"
-                >
-                  Deals
-                </button>
-                <button
-                  onClick={() => handleNavigation("/brands")}
-                  className="text-gray-700 hover:text-primary text-left"
-                >
-                  Brands
-                </button>
-                {user && (
-                  <button
-                    onClick={() => handleNavigation("/profile")}
-                    className="text-gray-700 hover:text-primary text-left"
-                  >
-                    My Profile
-                  </button>
-                )}
-                {isAdmin && (
-                  <button
-                    onClick={() => handleNavigation("/admin")}
-                    className="text-gray-700 hover:text-primary text-left"
-                  >
-                    Admin Panel
-                  </button>
-                )}
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
       />
-    </>
+    </header>
   );
-}
+};
+
+export default Header;

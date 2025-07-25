@@ -324,6 +324,60 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          address: string
+          business_hours: string
+          created_at: string
+          email: string
+          facebook_handle: string | null
+          id: string
+          instagram_handle: string | null
+          phone: string
+          returns_policy: string
+          shipping_info: string
+          site_description: string
+          site_name: string
+          site_url: string
+          twitter_handle: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          business_hours?: string
+          created_at?: string
+          email?: string
+          facebook_handle?: string | null
+          id?: string
+          instagram_handle?: string | null
+          phone?: string
+          returns_policy?: string
+          shipping_info?: string
+          site_description?: string
+          site_name?: string
+          site_url?: string
+          twitter_handle?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          business_hours?: string
+          created_at?: string
+          email?: string
+          facebook_handle?: string | null
+          id?: string
+          instagram_handle?: string | null
+          phone?: string
+          returns_policy?: string
+          shipping_info?: string
+          site_description?: string
+          site_name?: string
+          site_url?: string
+          twitter_handle?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
