@@ -27,7 +27,7 @@ export function useSiteSettings() {
 
   const fetchSettings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('site_settings')
         .select('*')
         .limit(1)
@@ -38,7 +38,7 @@ export function useSiteSettings() {
         return;
       }
 
-      setSettings(data);
+      setSettings(data as SiteSettings);
     } catch (error) {
       console.error('Error fetching settings:', error);
     } finally {
@@ -48,7 +48,7 @@ export function useSiteSettings() {
 
   const updateSettings = async (updates: Partial<SiteSettings>) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('site_settings')
         .update(updates)
         .eq('id', settings?.id)
@@ -57,7 +57,7 @@ export function useSiteSettings() {
 
       if (error) throw error;
 
-      setSettings(data);
+      setSettings(data as SiteSettings);
       toast.success('Settings updated successfully');
       return data;
     } catch (error) {
