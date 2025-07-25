@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, Phone } from 'lucide-react';
@@ -10,7 +11,7 @@ import AuthModal from './AuthModal';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { totalItems } = useCart();
+  const { getTotalItems } = useCart();
   const { user, signOut } = useAuth();
   const { settings } = useSiteSettings();
   const location = useLocation();
@@ -24,6 +25,8 @@ const Header = () => {
   const handleSignOut = async () => {
     await signOut();
   };
+
+  const totalItems = getTotalItems();
 
   const navigationLinks = [
     { name: 'Home', path: '/' },
@@ -74,6 +77,18 @@ const Header = () => {
               <Search className="h-5 w-5" />
             </Button>
 
+            {/* Cart */}
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
             {/* User Account */}
             {user ? (
               <div className="hidden md:flex items-center space-x-2">
@@ -97,19 +112,7 @@ const Header = () => {
               </Button>
             )}
 
-            {/* Cart */}
-            <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
-            </Link>
-
-            {/* Call Now Button - moved to last */}
+            {/* Call Now Button */}
             <Button 
               variant="outline" 
               size="sm" 
