@@ -1,28 +1,31 @@
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle, HeadphonesIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { toast } from 'sonner';
 
 export default function Contact() {
-  const { settings } = useSiteSettings();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    toast.success('Message sent successfully! We\'ll get back to you soon.');
+    setIsSubmitting(true);
+
+    // Simulate form submission
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast.success('Thank you for your message! We\'ll get back to you within 24 hours.');
     setFormData({ name: '', email: '', subject: '', message: '' });
+    setIsSubmitting(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -34,186 +37,212 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Have a question or need help? We're here to assist you. Get in touch with our team.
-          </p>
+      {/* Hero Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Contact Us
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Have questions? We're here to help! Reach out to our friendly team for support, 
+              product inquiries, or business partnerships.
+            </p>
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Phone className="h-5 w-5" />
-                  Get in Touch
-                </CardTitle>
-                <CardDescription>
-                  Reach out to us through any of these channels
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {settings?.email && (
-                  <div className="flex items-start space-x-4">
-                    <Mail className="h-5 w-5 text-blue-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">{settings.email}</p>
-                      <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
-                    </div>
-                  </div>
-                )}
+      {/* Contact Info Cards */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <Phone className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
+              <p className="text-gray-600 mb-2">Mon-Fri: 9AM-6PM EST</p>
+              <p className="text-blue-600 font-medium">+1 (555) 123-4567</p>
+            </div>
 
-                {settings?.phone && (
-                  <div className="flex items-start space-x-4">
-                    <Phone className="h-5 w-5 text-blue-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Phone</h3>
-                      <p className="text-gray-600">{settings.phone}</p>
-                      <p className="text-sm text-gray-500">Available during business hours</p>
-                    </div>
-                  </div>
-                )}
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <Mail className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Email Us</h3>
+              <p className="text-gray-600 mb-2">We typically respond within 24 hours</p>
+              <p className="text-green-600 font-medium">support@bytecart.site</p>
+            </div>
 
-                {settings?.address && (
-                  <div className="flex items-start space-x-4">
-                    <MapPin className="h-5 w-5 text-blue-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Address</h3>
-                      <p className="text-gray-600">{settings.address}</p>
-                      <p className="text-sm text-gray-500">Visit our store</p>
-                    </div>
-                  </div>
-                )}
-
-                {settings?.business_hours && (
-                  <div className="flex items-start space-x-4">
-                    <Clock className="h-5 w-5 text-blue-600 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Business Hours</h3>
-                      <p className="text-gray-600">{settings.business_hours}</p>
-                      <p className="text-sm text-gray-500">Customer support hours</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Additional Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Why Choose Us?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span className="text-gray-700">{settings?.shipping_info || 'Free shipping on orders over $50'}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span className="text-gray-700">{settings?.returns_policy || '30-day return policy'}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span className="text-gray-700">Expert customer support</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span className="text-gray-700">Quality guaranteed products</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <MessageCircle className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Live Chat</h3>
+              <p className="text-gray-600 mb-2">Chat with our support team</p>
+              <p className="text-purple-600 font-medium">Available 24/7</p>
+            </div>
           </div>
 
-          {/* Contact Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Send className="h-5 w-5" />
-                Send us a Message
-              </CardTitle>
-              <CardDescription>
-                Fill out the form below and we'll get back to you as soon as possible
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          {/* Contact Form & Info */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Form */}
+            <div className="bg-white p-8 rounded-lg shadow-sm">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+              
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
-                    </label>
+                    <Label htmlFor="name">Full Name</Label>
                     <Input
                       id="name"
                       name="name"
                       type="text"
-                      required
+                      placeholder="Your full name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Your full name"
+                      required
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
-                    </label>
+                    <Label htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
-                      required
+                      placeholder="your@email.com"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="your@email.com"
+                      required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject *
-                  </label>
+                  <Label htmlFor="subject">Subject</Label>
                   <Input
                     id="subject"
                     name="subject"
                     type="text"
-                    required
+                    placeholder="What's this about?"
                     value={formData.subject}
                     onChange={handleChange}
-                    placeholder="What's this about?"
+                    required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
-                  </label>
+                  <Label htmlFor="message">Message</Label>
                   <Textarea
                     id="message"
                     name="message"
-                    required
+                    placeholder="Tell us how we can help you..."
                     rows={6}
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Tell us how we can help you..."
+                    required
                   />
                 </div>
 
-                <Button type="submit" className="w-full">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-transparent border border-black text-black hover:bg-black hover:text-white transition-all duration-300"
+                >
                   <Send className="h-4 w-4 mr-2" />
-                  Send Message
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </Button>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <div className="bg-white p-8 rounded-lg shadow-sm">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start">
+                    <MapPin className="h-6 w-6 text-gray-400 mt-1 mr-3" />
+                    <div>
+                      <h3 className="font-medium text-gray-900">Our Office</h3>
+                      <p className="text-gray-600">
+                        123 Tech Street<br />
+                        San Francisco, CA 94105<br />
+                        United States
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <Clock className="h-6 w-6 text-gray-400 mt-1 mr-3" />
+                    <div>
+                      <h3 className="font-medium text-gray-900">Business Hours</h3>
+                      <p className="text-gray-600">
+                        Monday - Friday: 9:00 AM - 6:00 PM EST<br />
+                        Saturday: 10:00 AM - 4:00 PM EST<br />
+                        Sunday: Closed
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <HeadphonesIcon className="h-6 w-6 text-gray-400 mt-1 mr-3" />
+                    <div>
+                      <h3 className="font-medium text-gray-900">Support</h3>
+                      <p className="text-gray-600">
+                        For technical support and product questions, 
+                        our expert team is available to help you find 
+                        the right solutions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQ Section */}
+              <div className="bg-white p-8 rounded-lg shadow-sm">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Questions?</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">What's your return policy?</h3>
+                    <p className="text-gray-600 text-sm">
+                      We offer a 30-day return policy for all unused items in original packaging.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">Do you offer bulk discounts?</h3>
+                    <p className="text-gray-600 text-sm">
+                      Yes! Contact us for special pricing on bulk orders and business accounts.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-1">How can I track my order?</h3>
+                    <p className="text-gray-600 text-sm">
+                      You'll receive tracking information via email once your order ships.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Map Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Visit Our Store</h2>
+            <p className="text-gray-600">
+              Can't find what you're looking for online? Visit our physical store for hands-on experience
+            </p>
+          </div>
+          
+          <div className="bg-gray-200 rounded-lg h-96 flex items-center justify-center">
+            <div className="text-center">
+              <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">Interactive map would be displayed here</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
