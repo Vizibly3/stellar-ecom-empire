@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
-import { siteConfig } from "@/config/site";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { AuthModal } from "./AuthModal";
 import { SearchBar } from "./SearchBar";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
+  const { settings } = useSiteSettings();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -40,7 +41,8 @@ export function Header() {
   };
 
   const handleCallNow = () => {
-    window.open(`tel:${siteConfig.phone}`, "_self");
+    const phone = settings?.phone || "+1 (888) 365-7610";
+    window.open(`tel:${phone}`, "_self");
   };
 
   return (
@@ -51,15 +53,15 @@ export function Header() {
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center">
               <div className="text-gray-600">
-                Free shipping on orders over $50
+                {settings?.shipping_info || "Free shipping on orders over $50"}
               </div>
               <div className="flex items-center space-x-6 text-gray-600">
                 <a
-                  href={`tel:${siteConfig.phone}`}
+                  href={`tel:${settings?.phone || "+1 (888) 365-7610"}`}
                   className="flex items-center space-x-2 text-green-600 font-semibold hover:underline"
                 >
                   <Phone className="h-4 w-4" />
-                  <span>Call Now: {siteConfig.phone}</span>
+                  <span>Call Now: {settings?.phone || "+1 (888) 365-7610"}</span>
                 </a>
               </div>
             </div>
@@ -78,7 +80,7 @@ export function Header() {
                 <span className="text-white font-bold text-sm">BC</span>
               </div>
               <span className="text-xl font-bold text-black">
-                {siteConfig.name}
+                {settings?.site_name || "ByteKart"}
               </span>
             </button>
 

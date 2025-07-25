@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Users, Package, ShoppingCart, DollarSign, Plus, Edit, Trash2, Eye, BarChart3, TrendingUp, Activity } from 'lucide-react';
+import { Users, Package, ShoppingCart, DollarSign, Plus, Edit, Trash2, Eye, BarChart3, TrendingUp, Activity, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 import {
   Table,
   TableBody,
@@ -92,6 +93,7 @@ interface Order {
 
 export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
+  const { settings, loading: settingsLoading, updateSettings } = useSiteSettings();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -435,6 +437,29 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSettingsSubmit = async (formData: FormData) => {
+    try {
+      const settingsData = {
+        site_name: formData.get('site_name') as string,
+        site_description: formData.get('site_description') as string,
+        site_url: formData.get('site_url') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
+        address: formData.get('address') as string,
+        business_hours: formData.get('business_hours') as string,
+        shipping_info: formData.get('shipping_info') as string,
+        returns_policy: formData.get('returns_policy') as string,
+        twitter_handle: formData.get('twitter_handle') as string,
+        facebook_handle: formData.get('facebook_handle') as string,
+        instagram_handle: formData.get('instagram_handle') as string,
+      };
+
+      await updateSettings(settingsData);
+    } catch (error) {
+      console.error('Error updating settings:', error);
+    }
+  };
+
   if (!isAdmin) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -523,12 +548,13 @@ export default function AdminPanel() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="analytics" className="space-y-6">
@@ -1075,6 +1101,170 @@ export default function AdminPanel() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Site Settings
+              </CardTitle>
+              <CardDescription>
+                Manage your website configuration and contact information
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {settingsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-2">Loading settings...</p>
+                </div>
+              ) : (
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target as HTMLFormElement);
+                  handleSettingsSubmit(formData);
+                }} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="site_name">Site Name</Label>
+                      <Input
+                        id="site_name"
+                        name="site_name"
+                        defaultValue={settings?.site_name || ''}
+                        placeholder="Your site name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="site_url">Site URL</Label>
+                      <Input
+                        id="site_url"
+                        name="site_url"
+                        defaultValue={settings?.site_url || ''}
+                        placeholder="https://yoursite.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="site_description">Site Description</Label>
+                    <Textarea
+                      id="site_description"
+                      name="site_description"
+                      defaultValue={settings?.site_description || ''}
+                      placeholder="Describe your website"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        defaultValue={settings?.email || ''}
+                        placeholder="contact@yoursite.com"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        defaultValue={settings?.phone || ''}
+                        placeholder="+1 (555) 123-4567"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address">Address</Label>
+                    <Textarea
+                      id="address"
+                      name="address"
+                      defaultValue={settings?.address || ''}
+                      placeholder="Your business address"
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="business_hours">Business Hours</Label>
+                      <Input
+                        id="business_hours"
+                        name="business_hours"
+                        defaultValue={settings?.business_hours || ''}
+                        placeholder="Mon-Fri: 9AM-6PM PST"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="shipping_info">Shipping Info</Label>
+                      <Input
+                        id="shipping_info"
+                        name="shipping_info"
+                        defaultValue={settings?.shipping_info || ''}
+                        placeholder="Free shipping on orders over $50"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="returns_policy">Returns Policy</Label>
+                    <Input
+                      id="returns_policy"
+                      name="returns_policy"
+                      defaultValue={settings?.returns_policy || ''}
+                      placeholder="30-day return policy"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <Label htmlFor="twitter_handle">Twitter Handle</Label>
+                      <Input
+                        id="twitter_handle"
+                        name="twitter_handle"
+                        defaultValue={settings?.twitter_handle || ''}
+                        placeholder="@yourhandle"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="facebook_handle">Facebook Handle</Label>
+                      <Input
+                        id="facebook_handle"
+                        name="facebook_handle"
+                        defaultValue={settings?.facebook_handle || ''}
+                        placeholder="yourpage"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="instagram_handle">Instagram Handle</Label>
+                      <Input
+                        id="instagram_handle"
+                        name="instagram_handle"
+                        defaultValue={settings?.instagram_handle || ''}
+                        placeholder="yourhandle"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button type="submit" className="w-full md:w-auto">
+                      Save Settings
+                    </Button>
+                  </div>
+                </form>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

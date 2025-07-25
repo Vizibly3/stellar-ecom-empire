@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, MessageCircle, HeadphonesIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 export default function Contact() {
+  const { settings } = useSiteSettings();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -59,15 +60,15 @@ export default function Contact() {
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
               <Phone className="h-12 w-12 text-blue-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
-              <p className="text-gray-600 mb-2">Mon-Fri: 9AM-6PM EST</p>
-              <p className="text-blue-600 font-medium">+1 (555) 123-4567</p>
+              <p className="text-gray-600 mb-2">{settings?.business_hours || "Mon-Fri: 9AM-6PM EST"}</p>
+              <p className="text-blue-600 font-medium">{settings?.phone || "+1 (555) 123-4567"}</p>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
               <Mail className="h-12 w-12 text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">Email Us</h3>
               <p className="text-gray-600 mb-2">We typically respond within 24 hours</p>
-              <p className="text-green-600 font-medium">support@bytecart.site</p>
+              <p className="text-green-600 font-medium">{settings?.email || "support@bytecart.site"}</p>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm text-center">
@@ -160,9 +161,7 @@ export default function Contact() {
                     <div>
                       <h3 className="font-medium text-gray-900">Our Office</h3>
                       <p className="text-gray-600">
-                        123 Tech Street<br />
-                        San Francisco, CA 94105<br />
-                        United States
+                        {settings?.address || "123 Tech Street\nSan Francisco, CA 94105\nUnited States"}
                       </p>
                     </div>
                   </div>
@@ -172,9 +171,7 @@ export default function Contact() {
                     <div>
                       <h3 className="font-medium text-gray-900">Business Hours</h3>
                       <p className="text-gray-600">
-                        Monday - Friday: 9:00 AM - 6:00 PM EST<br />
-                        Saturday: 10:00 AM - 4:00 PM EST<br />
-                        Sunday: Closed
+                        {settings?.business_hours || "Monday - Friday: 9:00 AM - 6:00 PM EST\nSaturday: 10:00 AM - 4:00 PM EST\nSunday: Closed"}
                       </p>
                     </div>
                   </div>
@@ -201,7 +198,7 @@ export default function Contact() {
                   <div>
                     <h3 className="font-medium text-gray-900 mb-1">What's your return policy?</h3>
                     <p className="text-gray-600 text-sm">
-                      We offer a 30-day return policy for all unused items in original packaging.
+                      {settings?.returns_policy || "We offer a 30-day return policy for all unused items in original packaging."}
                     </p>
                   </div>
                   
