@@ -69,6 +69,28 @@ export function useSiteSettings() {
 
   useEffect(() => {
     fetchSettings();
+
+    // Set up real-time subscription to listen for changes
+    const channel = supabase
+      .channel('site-settings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'site_settings'
+        },
+        (payload) => {
+          console.log('Site settings updated:', payload);
+          setSettings(payload.new as SiteSettings);
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
