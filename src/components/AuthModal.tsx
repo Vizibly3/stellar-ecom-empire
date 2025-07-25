@@ -14,7 +14,7 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -235,4 +235,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default AuthModal;
